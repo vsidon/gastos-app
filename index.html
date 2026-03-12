@@ -57,6 +57,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--m
 .view::-webkit-scrollbar{width:3px;}
 .view::-webkit-scrollbar-thumb{background:var(--border2);}
 
+/* ── REGISTRAR LAYOUT: scroll arriba, numpad fijo abajo ── */
+#view-registrar{overflow:hidden;padding:0;}
+.reg-scroll{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.reg-scroll::-webkit-scrollbar{width:3px;}
+.reg-scroll::-webkit-scrollbar-thumb{background:var(--border2);}
+.reg-numpad{flex-shrink:0;border-top:1px solid var(--border);}
+
 /* ── PANEL ── */
 .panel{background:var(--bg1);border:1px solid var(--border);border-radius:3px;}
 .ph{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:10px;}
@@ -67,11 +74,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--m
 /* ── AMOUNT DISPLAY ── */
 .amount-panel{
   background:var(--bg1);border:1px solid var(--border);border-radius:3px;
-  text-align:center;padding:16px 12px 12px;
+  text-align:center;padding:10px 12px 8px;
 }
 .amount-label{font-size:9px;color:var(--text4);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
 .amount-value{
-  font-size:42px;font-weight:700;color:var(--text4);
+  font-size:36px;font-weight:700;color:var(--text4);
   transition:all .1s;letter-spacing:-1px;
 }
 .amount-value.has-value{color:var(--yellow);}
@@ -84,7 +91,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--m
 .num-btn{
   background:var(--bg2);border:none;color:var(--text);
   font-family:var(--mono);font-size:20px;font-weight:500;
-  padding:18px 0;cursor:pointer;transition:background .1s;
+  padding:11px 0;cursor:pointer;transition:background .1s;
 }
 .num-btn:active{background:var(--bg4);}
 .num-btn.del{color:var(--red);font-size:18px;}
@@ -221,25 +228,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--m
 <!-- ── REGISTRAR ── -->
 <div class="view active" id="view-registrar">
 
-  <div class="amount-panel">
-    <div class="amount-label">monto del gasto</div>
-    <div class="amount-value" id="amountDisplay">$0</div>
-  </div>
-
-  <div class="numpad">
-    <button class="num-btn" onclick="numPress('1')">1</button>
-    <button class="num-btn" onclick="numPress('2')">2</button>
-    <button class="num-btn" onclick="numPress('3')">3</button>
-    <button class="num-btn" onclick="numPress('4')">4</button>
-    <button class="num-btn" onclick="numPress('5')">5</button>
-    <button class="num-btn" onclick="numPress('6')">6</button>
-    <button class="num-btn" onclick="numPress('7')">7</button>
-    <button class="num-btn" onclick="numPress('8')">8</button>
-    <button class="num-btn" onclick="numPress('9')">9</button>
-    <button class="num-btn" onclick="numPress('.')">.</button>
-    <button class="num-btn" onclick="numPress('0')">0</button>
-    <button class="num-btn del" onclick="numDel()">⌫</button>
-  </div>
+  <!-- SCROLL: monto + categorías + nota + botón -->
+  <div class="reg-scroll">
 
   <div class="panel">
     <div class="ph"><span class="ph-t"><em>categoría</em></span><span class="ph-r" id="selCatLabel">Gasolina</span></div>
@@ -266,6 +256,26 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--m
   </div>
 
   <button class="submit-btn" id="submitBtn" onclick="submitGasto()">REGISTRAR GASTO</button>
+
+  </div><!-- .reg-scroll -->
+
+  <!-- NUMPAD FIJO ABAJO -->
+  <div class="reg-numpad">
+    <div class="numpad">
+      <button class="num-btn" onclick="numPress('1')">1</button>
+      <button class="num-btn" onclick="numPress('2')">2</button>
+      <button class="num-btn" onclick="numPress('3')">3</button>
+      <button class="num-btn" onclick="numPress('4')">4</button>
+      <button class="num-btn" onclick="numPress('5')">5</button>
+      <button class="num-btn" onclick="numPress('6')">6</button>
+      <button class="num-btn" onclick="numPress('7')">7</button>
+      <button class="num-btn" onclick="numPress('8')">8</button>
+      <button class="num-btn" onclick="numPress('9')">9</button>
+      <button class="num-btn" onclick="numPress('.')">.</button>
+      <button class="num-btn" onclick="numPress('0')">0</button>
+      <button class="num-btn del" onclick="numDel()">⌫</button>
+    </div>
+  </div>
 
 </div>
 
