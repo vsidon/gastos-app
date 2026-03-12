@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Gasto Rápido — Victor</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #13131a;
+    --surface2: #1c1c28;
+    --border:   #2a2a3d;
+    --accent:   #00e5a0;
+    --accent2:  #ff4d6d;
+    --accent3:  #ffd166;
+    --text:     #f0f0f5;
+    --muted:    #6b6b8a;
+    --mono:     'Space Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .4;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+  }
+  .logo { display: flex; flex-direction: column; gap: 2px; }
+  .logo-title { font-family: var(--sans); font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+  .logo-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+  .balance-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 61px; z-index: 9;
+  }
+  .tab {
+    flex: 1; padding: 14px 8px; text-align: center;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted);
+    cursor: pointer; border: none; background: none;
+    transition: all .2s; border-bottom: 2px solid transparent;
+    position: relative;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* ── VIEWS ── */
+  .view { display: none; padding: 20px 16px; flex: 1; }
+  .view.active { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── FORM ── */
+  .amount-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .amount-display::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,229,160,.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .amount-label { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+  .amount-value {
+    font-family: var(--mono); font-size: 48px; font-weight: 700;
+    color: var(--accent); letter-spacing: -2px;
+    transition: all .15s;
+  }
+  .amount-value.has-value { color: var(--text); }
+
+  /* ── NUMPAD ── */
+  .numpad {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .num-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 8px;
+    font-family: var(--mono); font-size: 20px; color: var(--text);
+    cursor: pointer; border: none; outline: none;
+    transition: all .1s; user-select: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .num-btn:active { background: var(--border); transform: scale(.96); }
+  .num-btn.del { color: var(--accent2); font-size: 16px; }
+  .num-btn.zero { font-size: 16px; letter-spacing: 1px; }
+
+  /* ── CATEGORIES ── */
+  .section-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .cats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .cat-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center; cursor: pointer;
+    transition: all .15s; user-select: none;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .cat-btn .cat-icon { font-size: 22px; }
+  .cat-btn .cat-name { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+  .cat-btn.selected {
+    border-color: var(--accent); background: rgba(0,229,160,.08);
+  }
+  .cat-btn.selected .cat-name { color: var(--accent); }
+  .cat-btn:active { transform: scale(.96); }
+
+  /* ── TEXT INPUT ── */
+  .note-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: var(--mono); font-size: 13px; color: var(--text);
+    width: 100%; outline: none;
+    transition: border-color .2s;
+  }
+  .note-input::placeholder { color: var(--muted); }
+  .note-input:focus { border-color: var(--accent); }
+
+  /* ── SUBMIT BTN ── */
+  .submit-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none; border-radius: 14px;
+    padding: 18px; width: 100%;
+    font-family: var(--sans); font-weight: 800; font-size: 16px; letter-spacing: .5px;
+    cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .submit-btn:active { transform: scale(.98); filter: brightness(.9); }
+  .submit-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .submit-btn.loading { opacity: .7; }
+
+  /* ── SUCCESS FLASH ── */
+  .flash {
+    position: fixed; inset: 0; background: rgba(0,229,160,.12);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+  }
+  .flash.show { opacity: 1; pointer-events: all; }
+  .flash-inner {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 20px; padding: 32px 40px;
+    text-align: center; display: flex; flex-direction: column; gap: 8px;
+  }
+  .flash-icon { font-size: 48px; }
+  .flash-title { font-family: var(--sans); font-weight: 800; font-size: 22px; color: var(--accent); }
+  .flash-sub { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  /* ── HISTORIAL ── */
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    animation: slideIn .2s ease;
+  }
+  @keyframes slideIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+  .hist-icon { font-size: 24px; flex-shrink: 0; }
+  .hist-body { flex: 1; min-width: 0; }
+  .hist-desc { font-family: var(--sans); font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hist-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .hist-amount { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent2); flex-shrink: 0; }
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    display: flex; flex-direction: column; gap: 8px; align-items: center;
+  }
+  .empty-state span:first-child { font-size: 40px; }
+
+  /* ── STATS ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-card.accent { border-color: var(--accent); background: rgba(0,229,160,.04); }
+  .stat-card.danger { border-color: var(--accent2); background: rgba(255,77,109,.04); }
+  .stat-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+  .stat-value { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-value.green { color: var(--accent); }
+  .stat-value.red { color: var(--accent2); }
+
+  .progress-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px;
+  }
+  .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .progress-title { font-family: var(--sans); font-weight: 600; font-size: 13px; }
+  .progress-pct { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .progress-track {
+    background: var(--surface2); border-radius: 99px; height: 8px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), #00b87a);
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-fill.danger { background: linear-gradient(90deg, var(--accent2), #c0392b); }
+
+  /* ── CONFIG ── */
+  .config-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .config-title { font-family: var(--sans); font-weight: 700; font-size: 15px; }
+  .config-desc { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .config-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    font-family: var(--mono); font-size: 12px; color: var(--text);
+    width: 100%; outline: none; transition: border-color .2s;
+  }
+  .config-input:focus { border-color: var(--accent); }
+  .config-save {
+    background: var(--surface2); border: 1px solid var(--accent);
+    border-radius: 10px; padding: 12px;
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+    cursor: pointer; transition: all .15s; letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .config-save:active { background: rgba(0,229,160,.1); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .status-dot.ok { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .status-dot.err { background: var(--accent2); }
+  .status-dot.pending { background: var(--accent3); }
+
+  .info-box {
+    background: rgba(0,229,160,.05);
+    border: 1px solid rgba(0,229,160,.2);
+    border-radius: 12px; padding: 14px;
+    font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.7;
+  }
+  .info-box strong { color: var(--accent); }
+
+  /* ── RESPONSIVE tweaks ── */
+  @media (min-width: 480px) {
+    .view { padding: 24px 24px; max-width: 480px; margin: 0 auto; }
+    .tabs { max-width: 480px; margin: 0 auto; }
+    header { max-width: 480px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-title">💸 GastoRápido</div>
+    <div class="logo-sub">Victor Sidon</div>
+  </div>
+  <div class="balance-pill" id="balancePill">$0.00 hoy</div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('registrar')">＋ Registrar</button>
+  <button class="tab" onclick="switchTab('historial')">⏱ Historial</button>
+  <button class="tab" onclick="switchTab('resumen')">📊 Resumen</button>
+  <button class="tab" onclick="switchTab('config')">⚙ Config</button>
+</div>
+
+<!-- ══ REGISTRAR ══════════════════════════════════════════════════════ -->
+<div class="view active" id="view-registrar">
+
+  <div class="amount-display">
+    <div class="amount-label">monto del gasto</div>
+    <div class="amount-value" id="amountDisplay">$0</div>
+  </div>
+
+  <div class="numpad">
+    <button class="num-btn" onclick="numPress('1')">1</button>
+    <button class="num-btn" onclick="numPress('2')">2</button>
+    <button class="num-btn" onclick="numPress('3')">3</button>
+    <button class="num-btn" onclick="numPress('4')">4</button>
+    <button class="num-btn" onclick="numPress('5')">5</button>
+    <button class="num-btn" onclick="numPress('6')">6</button>
+    <button class="num-btn" onclick="numPress('7')">7</button>
+    <button class="num-btn" onclick="numPress('8')">8</button>
+    <button class="num-btn" onclick="numPress('9')">9</button>
+    <button class="num-btn" onclick="numPress('.')">.</button>
+    <button class="num-btn" onclick="numPress('0')">0</button>
+    <button class="num-btn del" onclick="numDel()">⌫</button>
+  </div>
+
+  <div>
+    <div class="section-label">categoría</div>
+    <div class="cats" id="cats">
+      <div class="cat-btn selected" data-cat="Gasolina" onclick="selectCat(this)">
+        <span class="cat-icon">⛽</span><span class="cat-name">Gasolina</span>
+      </div>
+      <div class="cat-btn" data-cat="Mandado" onclick="selectCat(this)">
+        <span class="cat-icon">🛒</span><span class="cat-name">Mandado</span>
+      </div>
+      <div class="cat-btn" data-cat="Comida" onclick="selectCat(this)">
+        <span class="cat-icon">🍽</span><span class="cat-name">Comida</span>
+      </div>
+      <div class="cat-btn" data-cat="Recibos" onclick="selectCat(this)">
+        <span class="cat-icon">📄</span><span class="cat-name">Recibos</span>
+      </div>
+      <div class="cat-btn" data-cat="Transporte" onclick="selectCat(this)">
+        <span class="cat-icon">🚗</span><span class="cat-name">Transporte</span>
+      </div>
+      <div class="cat-btn" data-cat="Deuda" onclick="selectCat(this)">
+        <span class="cat-icon">💳</span><span class="cat-name">Deuda</span>
+      </div>
+      <div class="cat-btn" data-cat="Plasma" onclick="selectCat(this)">
+        <span class="cat-icon">💉</span><span class="cat-name">Plasma</span>
+      </div>
+      <div class="cat-btn" data-cat="Emergencia" onclick="selectCat(this)">
+        <span class="cat-icon">🚨</span><span class="cat-name">Emergencia</span>
+      </div>
+      <div class="cat-btn" data-cat="Otro" onclick="selectCat(this)">
+        <span class="cat-icon">📦</span><span class="cat-name">Otro</span>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">nota (opcional)</div>
+    <input class="note-input" id="noteInput" placeholder="ej: taquería, oxxo, medicamento..." maxlength="80">
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitGasto()">
+    <span>REGISTRAR GASTO</span>
+  </button>
+
+</div>
+
+<!-- ══ HISTORIAL ══════════════════════════════════════════════════════ -->
+<div class="view" id="view-historial">
+  <div class="history-list" id="historyList">
+    <div class="empty-state">
+      <span>📭</span>
+      <span>Sin gastos registrados aún.</span>
+      <span>Registra tu primer gasto.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESUMEN ═══════════════════════════════════════════════════════ -->
+<div class="view" id="view-resumen">
+
+  <div class="stats-grid">
+    <div class="stat-card danger">
+      <div class="stat-label">Gastado hoy</div>
+      <div class="stat-value red" id="statHoy">$0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Esta semana</div>
+      <div class="stat-value" id="statSemana">$0</div>
+    </div>
+    <div class="stat-card accent">
+      <div class="stat-label">Libre estimado</div>
+      <div class="stat-value green" id="statLibre">$4,132</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Registros</div>
+      <div class="stat-value" id="statCount">0</div>
+    </div>
+  </div>
+
+  <div id="progressBars"></div>
+
+  <div class="info-box">
+    <strong>Libre semanal base:</strong> $4,132 MXN<br>
+    <strong>Semana de cobro:</strong> Jueves<br>
+    <strong>Fuente datos PBI:</strong> Google Sheets conectado
+  </div>
+
+</div>
+
+<!-- ══ CONFIG ════════════════════════════════════════════════════════ -->
+<div class="view" id="view-config">
+
+  <div class="config-card">
+    <div class="config-title">🔗 Conectar a Google Sheets</div>
+    <div class="config-desc">
+      Sigue los pasos del instructivo para obtener tu URL de Google Apps Script.
+      Una vez configurado, cada gasto se guarda automáticamente en tu hoja de cálculo.
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText" style="color:var(--muted)">Sin configurar</span>
+    </div>
+    <input class="config-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/XXXX/exec" type="url">
+    <button class="config-save" onclick="saveConfig()">GUARDAR Y PROBAR CONEXIÓN</button>
+  </div>
+
+  <div class="config-card">
+    <div class="config-title">📋 Instructivo Google Sheets</div>
+    <div class="config-desc" style="counter-reset:step">
+      <b style="color:var(--text);">1.</b> Ve a <b style="color:var(--accent)">sheets.new</b> y crea una hoja llamada <b style="color:var(--accent)">Gastos</b><br><br>
+      <b style="color:var(--text);">2.</b> En la fila 1 pon estos encabezados exactos:<br>
+      <span style="color:var(--accent3)">Fecha | Hora | Categoria | Monto | Nota | Semana | Mes</span><br><br>
+      <b style="color:var(--text);">3.</b> Ve a <b style="color:var(--accent)">Extensiones → Apps Script</b><br><br>
+      <b style="color:var(--text);">4.</b> Borra el código y pega el código de abajo<br><br>
+      <b style="color:var(--text);">5.</b> Clic en <b style="color:var(--accent)">Implementar → Nueva implementación → App web</b><br><br>
+      <b style="color:var(--text);">6.</b> Acceso: <b style="color:var(--accent)">Cualquier persona</b> → Implementar → copia la URL<br><br>
+      <b style="color:var(--text);">7.</b> Pega esa URL arriba y guarda
+    </div>
+  </div>
+
+  <div class="config-card">
+    <div class="config-title">📝 Código Apps Script</div>
+    <div class="config-desc" style="user-select:all; word-break:break-all; background:var(--surface2); padding:12px; border-radius:8px; font-size:10px; line-height:1.8; color:var(--accent3)">
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Gastos') || ss.getActiveSheet();
+    var now = new Date();
+    var week = getWeekNumber(now);
+    sheet.appendRow([
+      Utilities.formatDate(now, 'America/Tijuana', 'yyyy-MM-dd'),
+      Utilities.formatDate(now, 'America/Tijuana', 'HH:mm:ss'),
+      data.categoria || '',
+      parseFloat(data.monto) || 0,
+      data.nota || '',
+      week,
+      Utilities.formatDate(now, 'America/Tijuana', 'yyyy-MM')
+    ]);
+    return ContentService
+      .createTextOutput(JSON.stringify({status:'ok'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({status:'error',msg:err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getWeekNumber(d) {
+  var d2 = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  var dayNum = d2.getUTCDay() || 7;
+  d2.setUTCDate(d2.getUTCDate() + 4 - dayNum);
+  var yearStart = new Date(Date.UTC(d2.getUTCFullYear(),0,1));
+  return Math.ceil((((d2 - yearStart) / 86400000) + 1)/7);
+}
+
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({status:'ok',msg:'GastoRapido activo'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+    </div>
+    <button class="config-save" onclick="copyCode()" id="copyBtn">COPIAR CÓDIGO</button>
+  </div>
+
+  <div class="config-card">
+    <div class="config-title">📊 Conectar Sheets a Power BI</div>
+    <div class="config-desc">
+      En Power BI Desktop:<br><br>
+      <b style="color:var(--text);">1.</b> Obtener datos → <b style="color:var(--accent)">Web</b><br>
+      <b style="color:var(--text);">2.</b> URL de tu Google Sheet en formato CSV:<br>
+      <span style="color:var(--accent3); word-break:break-all;">https://docs.google.com/spreadsheets/d/<b>TU_ID</b>/export?format=csv&gid=0</span><br><br>
+      <b style="color:var(--text);">3.</b> Reemplaza <b style="color:var(--accent)">TU_ID</b> con el ID de tu hoja (está en la URL de Sheets)<br><br>
+      <b style="color:var(--text);">4.</b> Clic en Actualizar en Power BI para refrescar datos en tiempo real
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ FLASH ══════════════════════════════════════════════════════════ -->
+<div class="flash" id="flash" onclick="hideFlash()">
+  <div class="flash-inner">
+    <div class="flash-icon">✅</div>
+    <div class="flash-title" id="flashTitle">¡Guardado!</div>
+    <div class="flash-sub" id="flashSub">Gasto registrado correctamente</div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────
+let amountStr = '';
+let selectedCat = 'Gasolina';
+let gastos = JSON.parse(localStorage.getItem('gastos_vs') || '[]');
+let scriptURL = localStorage.getItem('script_url_vs') || '';
+const LIBRE_SEMANAL = 4132;
+
+// ── INIT ───────────────────────────────────────────────────────────────
+function init() {
+  if (scriptURL) {
+    document.getElementById('scriptUrl').value = scriptURL;
+    updateStatusDot('ok', 'Conectado a Google Sheets');
+  } else {
+    updateStatusDot('pending', 'Sin configurar');
+  }
+  renderHistory();
+  renderResumen();
+  updateBalance();
+}
+
+// ── NUMPAD ─────────────────────────────────────────────────────────────
+function numPress(v) {
+  if (v === '.' && amountStr.includes('.')) return;
+  if (amountStr.includes('.')) {
+    const dec = amountStr.split('.')[1];
+    if (dec && dec.length >= 2) return;
+  }
+  if (amountStr === '0' && v !== '.') amountStr = v;
+  else amountStr += v;
+  if (amountStr.length > 8) return;
+  updateAmountDisplay();
+}
+function numDel() {
+  amountStr = amountStr.slice(0, -1);
+  updateAmountDisplay();
+}
+function updateAmountDisplay() {
+  const el = document.getElementById('amountDisplay');
+  const val = parseFloat(amountStr) || 0;
+  el.textContent = val > 0
+    ? '$' + val.toLocaleString('es-MX', {minimumFractionDigits: amountStr.includes('.') ? (amountStr.split('.')[1]?.length || 0) : 0})
+    : '$0';
+  el.className = 'amount-value' + (val > 0 ? ' has-value' : '');
+}
+
+// ── CATEGORY ───────────────────────────────────────────────────────────
+function selectCat(el) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat = el.dataset.cat;
+}
+
+// ── SUBMIT ─────────────────────────────────────────────────────────────
+async function submitGasto() {
+  const amount = parseFloat(amountStr);
+  if (!amount || amount <= 0) {
+    shakeDisplay(); return;
+  }
+  const note = document.getElementById('noteInput').value.trim();
+  const gasto = {
+    id: Date.now(),
+    fecha: new Date().toISOString(),
+    categoria: selectedCat,
+    monto: amount,
+    nota: note,
+    synced: false
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  // Guardar local siempre
+  gastos.unshift(gasto);
+  localStorage.setItem('gastos_vs', JSON.stringify(gastos));
+
+  // Enviar a Sheets si hay URL
+  if (scriptURL) {
+    try {
+      await fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoria: selectedCat, monto: amount, nota: note })
+      });
+      gasto.synced = true;
+      localStorage.setItem('gastos_vs', JSON.stringify(gastos));
+    } catch (e) { /* sin internet, queda pendiente */ }
+  }
+
+  // Reset
+  amountStr = '';
+  updateAmountDisplay();
+  document.getElementById('noteInput').value = '';
+  btn.disabled = false;
+  btn.innerHTML = '<span>REGISTRAR GASTO</span>';
+
+  renderHistory();
+  renderResumen();
+  updateBalance();
+  showFlash(`-$${amount.toLocaleString('es-MX')}`, selectedCat + (note ? ` · ${note}` : ''));
+}
+
+// ── FLASH ──────────────────────────────────────────────────────────────
+function showFlash(title, sub) {
+  document.getElementById('flashTitle').textContent = title;
+  document.getElementById('flashSub').textContent = sub;
+  document.getElementById('flash').classList.add('show');
+  setTimeout(hideFlash, 1800);
+}
+function hideFlash() { document.getElementById('flash').classList.remove('show'); }
+
+// ── SHAKE ──────────────────────────────────────────────────────────────
+function shakeDisplay() {
+  const el = document.getElementById('amountDisplay');
+  el.style.transform = 'translateX(-8px)';
+  setTimeout(() => el.style.transform = 'translateX(8px)', 80);
+  setTimeout(() => el.style.transform = 'none', 160);
+}
+
+// ── HISTORY ────────────────────────────────────────────────────────────
+const catIcons = { Gasolina:'⛽', Mandado:'🛒', Comida:'🍽', Recibos:'📄',
+  Transporte:'🚗', Deuda:'💳', Plasma:'💉', Emergencia:'🚨', Otro:'📦' };
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!gastos.length) {
+    list.innerHTML = `<div class="empty-state"><span>📭</span><span>Sin gastos aún.</span></div>`;
+    return;
+  }
+  list.innerHTML = gastos.slice(0, 40).map(g => {
+    const d = new Date(g.fecha);
+    const dateStr = d.toLocaleDateString('es-MX', {day:'2-digit', month:'short'});
+    const timeStr = d.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit'});
+    const syncIcon = g.synced ? '☁️' : '📱';
+    return `<div class="history-item">
+      <div class="hist-icon">${catIcons[g.categoria]||'📦'}</div>
+      <div class="hist-body">
+        <div class="hist-desc">${g.nota || g.categoria}</div>
+        <div class="hist-meta">${g.categoria} · ${dateStr} ${timeStr} ${syncIcon}</div>
+      </div>
+      <div class="hist-amount">-$${g.monto.toLocaleString('es-MX')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── RESUMEN ────────────────────────────────────────────────────────────
+function renderResumen() {
+  const now = new Date();
+  const hoy = now.toDateString();
+  const lunes = new Date(now); lunes.setDate(now.getDate() - ((now.getDay()+6)%7));
+  lunes.setHours(0,0,0,0);
+
+  let totalHoy = 0, totalSemana = 0;
+  const porCat = {};
+  gastos.forEach(g => {
+    const d = new Date(g.fecha);
+    if (d.toDateString() === hoy) totalHoy += g.monto;
+    if (d >= lunes) { totalSemana += g.monto; }
+    if (!porCat[g.categoria]) porCat[g.categoria] = 0;
+    porCat[g.categoria] += g.monto;
+  });
+
+  document.getElementById('statHoy').textContent = `$${totalHoy.toLocaleString('es-MX',{maximumFractionDigits:0})}`;
+  document.getElementById('statSemana').textContent = `$${totalSemana.toLocaleString('es-MX',{maximumFractionDigits:0})}`;
+  document.getElementById('statCount').textContent = gastos.length;
+  const libre = Math.max(0, LIBRE_SEMANAL - totalSemana);
+  document.getElementById('statLibre').textContent = `$${libre.toLocaleString('es-MX',{maximumFractionDigits:0})}`;
+
+  // Progress bars
+  const bars = document.getElementById('progressBars');
+  const presupuestos = { Gasolina:200, Mandado:200, Comida:500, Recibos:100, Otro:300 };
+  bars.innerHTML = Object.entries(presupuestos).map(([cat, budget]) => {
+    const spent = porCat[cat] || 0;
+    const pct = Math.min(100, (spent/budget)*100);
+    const over = pct >= 100;
+    return `<div class="progress-bar-wrap" style="margin-bottom:8px">
+      <div class="progress-header">
+        <div class="progress-title">${catIcons[cat]} ${cat}</div>
+        <div class="progress-pct">$${spent.toLocaleString('es-MX',{maximumFractionDigits:0})} / $${budget.toLocaleString('es-MX')}</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill ${over?'danger':''}" style="width:${pct}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── BALANCE PILL ───────────────────────────────────────────────────────
+function updateBalance() {
+  const hoy = new Date().toDateString();
+  const totalHoy = gastos.filter(g => new Date(g.fecha).toDateString() === hoy)
+    .reduce((s, g) => s + g.monto, 0);
+  document.getElementById('balancePill').textContent = `$${totalHoy.toLocaleString('es-MX',{maximumFractionDigits:0})} hoy`;
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['registrar','historial','resumen','config'];
+    t.className = 'tab' + (names[i] === name ? ' active' : '');
+  });
+  document.querySelectorAll('.view').forEach(v => v.className = 'view');
+  document.getElementById(`view-${name}`).classList.add('active');
+  if (name === 'resumen') renderResumen();
+}
+
+// ── CONFIG ─────────────────────────────────────────────────────────────
+async function saveConfig() {
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (!url.startsWith('https://script.google.com')) {
+    updateStatusDot('err', 'URL inválida'); return;
+  }
+  updateStatusDot('pending', 'Probando conexión...');
+  try {
+    await fetch(url, { mode: 'no-cors' });
+    scriptURL = url;
+    localStorage.setItem('script_url_vs', url);
+    updateStatusDot('ok', 'Conectado a Google Sheets ✓');
+  } catch (e) {
+    updateStatusDot('err', 'Error de conexión');
+  }
+}
+function updateStatusDot(state, text) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot ' + state;
+  document.getElementById('statusText').textContent = text;
+}
+
+// ── COPY CODE ──────────────────────────────────────────────────────────
+function copyCode() {
+  const code = document.querySelector('.config-desc[style*="user-select"]').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ COPIADO';
+    setTimeout(() => btn.textContent = 'COPIAR CÓDIGO', 2000);
+  });
+}
+
+// ── START ──────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
