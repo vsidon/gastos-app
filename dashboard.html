@@ -442,12 +442,19 @@ function renderGastos(rows){
 }
 
 // ── RENDER KPIs ──────────────────────────────────────────
+function parseLocalDate(f){
+  if(!f)return new Date(0);
+  // Si viene como "2026-03-15" (sin hora) agregar T00:00 para que sea local
+  if(typeof f==='string'&&f.match(/^\d{4}-\d{2}-\d{2}$/))
+    return new Date(f+'T00:00:00');
+  return new Date(f);
+}
 function renderKPIs(rows){
   const hoy=new Date();hoy.setHours(0,0,0,0);
   const lun=new Date(hoy);lun.setDate(lun.getDate()-((lun.getDay()+6)%7));
   let h=0,s=0;
   rows.forEach(r=>{
-    const d=new Date(r.fecha);
+    const d=parseLocalDate(r.fecha);
     if(d>=hoy)h+=r.monto;
     if(d>=lun)s+=r.monto;
   });
@@ -461,7 +468,7 @@ function renderKPIs(rows){
 // ── RENDER CATEGORÍAS ────────────────────────────────────
 function renderCats(rows){
   const lun=new Date();lun.setHours(0,0,0,0);lun.setDate(lun.getDate()-((lun.getDay()+6)%7));
-  const sem=rows.filter(r=>new Date(r.fecha)>=lun);
+  const sem=rows.filter(r=>parseLocalDate(r.fecha)>=lun);
   const map={};sem.forEach(r=>{const c=(r.cat||'otro').toLowerCase();map[c]=(map[c]||0)+r.monto;});
   const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]);
   const el=document.getElementById('catPanel');
@@ -681,6 +688,23 @@ loadSheets();
 setInterval(loadSheets,60000);
 window.addEventListener('resize',renderBurndown);
 document.addEventListener('keydown',e=>{if(e.key==='F2'){e.preventDefault();loadSheets();}});
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/gastos-app/sw.js')
+    .then(r => {
+      r.addEventListener('updatefound', () => {
+        const w = r.installing;
+        w.addEventListener('statechange', () => {
+          if(w.state==='installed' && navigator.serviceWorker.controller){
+            // Nueva versión disponible — recargar automático
+            window.location.reload();
+          }
+        });
+      });
+    });
+}
 </script>
 </body>
 </html>

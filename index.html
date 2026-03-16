@@ -426,12 +426,12 @@ async function renderHist(){
 
 // ── RESUMEN ──
 function renderCfg(){
-  const now=new Date(),hoy=now.toDateString();
+  const now=new Date(),hoyStr=now.toDateString();
   const lun=new Date(now);lun.setDate(now.getDate()-((now.getDay()+6)%7));lun.setHours(0,0,0,0);
   let h=0,s=0;const pc={};
   gastos.forEach(g=>{
     const d=new Date(g.fecha);
-    if(d.toDateString()===hoy)h+=g.monto;
+    if(d.toDateString()===hoyStr)h+=g.monto;
     if(d>=lun)s+=g.monto;
     pc[g.categoria]=(pc[g.categoria]||0)+g.monto;
   });
@@ -453,8 +453,8 @@ function renderCfg(){
 
 // ── PILL ──
 function updatePill(){
-  const hoy=new Date().toDateString();
-  const t=gastos.filter(g=>new Date(g.fecha).toDateString()===hoy).reduce((s,g)=>s+g.monto,0);
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const t=gastos.filter(g=>{const d=new Date(g.fecha);return d>=hoy&&d<new Date(hoy.getTime()+86400000);}).reduce((s,g)=>s+g.monto,0);
   document.getElementById('pillHoy').textContent=mxn(t);
 }
 
