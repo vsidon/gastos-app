@@ -107,6 +107,22 @@ textarea.nota-input::placeholder{color:var(--text3);}
 .cfg-stat-val{font-size:14px;font-weight:700;color:var(--blue);font-family:var(--mono);}
 .cfg-link{display:block;text-align:center;padding:12px;background:var(--glass2);border:0.5px solid var(--border2);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:.5px;}
 </style>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/gastos-app/sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const sw = reg.installing;
+      sw.addEventListener('statechange', () => {
+        if(sw.state === 'installed' && navigator.serviceWorker.controller){
+          // Nueva versión disponible — recargar automático
+          window.location.reload();
+        }
+      });
+    });
+  });
+}
+</script>
 </head>
 <body>
 <div class="blobs">
@@ -478,6 +494,23 @@ function clearData(){
 
 init();
 
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/gastos-app/sw.js')
+    .then(r => {
+      r.addEventListener('updatefound', () => {
+        const w = r.installing;
+        w.addEventListener('statechange', () => {
+          if(w.state==='installed' && navigator.serviceWorker.controller){
+            // Nueva versión disponible — recargar automático
+            window.location.reload();
+          }
+        });
+      });
+    });
+}
 </script>
 </body>
 </html>
