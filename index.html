@@ -91,6 +91,10 @@ textarea.nota-input::placeholder{color:var(--text3);}
 .hist-sync.ok{color:var(--green);}
 .hist-sync.pen{color:var(--text3);}
 .hist-empty{color:var(--text2);font-size:12px;font-family:var(--mono);text-align:center;padding:40px 0;}
+.hist-desc{font-size:12px;font-weight:600;color:var(--text);font-family:var(--mono);}
+.hist-meta{font-size:10px;color:var(--text2);margin-top:2px;font-family:var(--mono);}
+.hist-sync{color:var(--green);}
+.empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:40px 0;color:var(--text2);font-family:var(--mono);font-size:12px;}
 /* CONFIG */
 .cfg-panel{padding:14px;display:flex;flex-direction:column;gap:12px;}
 .cfg-card{background:var(--glass);border:0.5px solid var(--border);border-radius:14px;padding:14px;}
@@ -177,7 +181,7 @@ textarea.nota-input::placeholder{color:var(--text3);}
   <div class="panel" id="panel-hist">
     <div class="hist-panel">
       <div class="hist-header">
-        <span class="hist-title" id="histTitle">-- registros</span>
+        <span class="hist-title" id="histTitle"><span id="histCount">0</span> registros</span>
         <button class="hist-clear" onclick="clearGastos()">limpiar</button>
       </div>
       <div id="histList"></div>
