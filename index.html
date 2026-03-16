@@ -3,386 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1c1e26">
+<meta name="theme-color" content="#060b14">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>GastoRápido</title>
 <link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#1c1e26;--bg1:#21232d;--bg2:#272935;--bg3:#2e3040;--bg4:#353849;
-  --border:#3d4166;--border2:#4a5080;
-  --text:#cdd6f4;--text2:#a6adc8;--text3:#6c7086;--text4:#45475a;
-  --red:#f38ba8;--orange:#fab387;--yellow:#f9e2af;--green:#a6e3a1;
-  --teal:#94e2d5;--cyan:#89dceb;--blue:#89b4fa;--magenta:#cba6f7;
-  --mono:'JetBrains Mono',monospace;
+  --blue:#00b4ff;--blue2:#0066ff;--blue3:rgba(0,180,255,0.15);
+  --green:#00e5a0;--red:#ff4d6d;--yellow:#ffd166;--purple:#b388ff;
+  --bg:#060b14;--bg1:#0d1525;--bg2:#111d30;--bg3:#162038;
+  --glass:rgba(255,255,255,0.05);--glass2:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.08);--border2:rgba(0,180,255,0.25);
+  --text:#e8f0fe;--text2:#94a3b8;--text3:#4a5568;
+  --mono:'JetBrains Mono','Fira Mono','Consolas',monospace;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;overflow:hidden;}
-
-/* ── ROOT ── */
-.root{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;}
-
-/* ── TOPBAR ── */
-.topbar{
-  background:var(--bg3);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:8px 12px;flex-shrink:0;
-}
-.tb-title{color:var(--blue);font-weight:700;font-size:13px;letter-spacing:.5px;}
-.tb-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(166,227,161,.1);color:var(--green);border:1px solid rgba(166,227,161,.25);}
-.tb-badge.warn{background:rgba(249,226,175,.1);color:var(--yellow);border-color:rgba(249,226,175,.25);}
-.tb-badge.err{background:rgba(243,139,168,.1);color:var(--red);border-color:rgba(243,139,168,.25);}
-.tb-right{display:flex;align-items:center;gap:8px;}
-.tb-pill{font-size:10px;color:var(--text3);}
-.tb-pill span{color:var(--yellow);font-weight:600;}
-
-/* ── TABS ── */
-.tabs{
-  display:flex;background:var(--bg2);border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-.tab{
-  flex:1;padding:10px 4px;background:none;border:none;color:var(--text3);
-  font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:.5px;
-  border-bottom:2px solid transparent;transition:all .15s;text-transform:uppercase;
-}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;height:100%;overflow:hidden;}
+.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.15;}
+.b1{width:350px;height:350px;background:#0066ff;top:-80px;right:-80px;}
+.b2{width:250px;height:250px;background:#00e5a0;bottom:15%;left:-60px;}
+.b3{width:200px;height:200px;background:#7c3aed;top:50%;right:0;}
+.app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
+.topbar{flex-shrink:0;padding:12px 16px 8px;background:rgba(6,11,20,0.9);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.tb-brand{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:1px;font-family:var(--mono);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-kpi-val{font-size:14px;font-weight:700;color:var(--yellow);font-family:var(--mono);}
+.tb-kpi-lbl{font-size:9px;color:var(--text2);letter-spacing:.5px;text-align:right;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.sync-dot.ok{background:var(--green);animation:pulse 2s infinite;}
+.sync-dot.err{background:var(--red);animation:none;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tabs{flex-shrink:0;display:flex;background:rgba(6,11,20,0.95);border-bottom:0.5px solid var(--border);}
+.tab{flex:1;padding:11px 4px;background:none;border:none;color:var(--text2);font-family:var(--mono);font-size:10px;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;border-bottom:2px solid transparent;transition:all .2s;}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-.tab:hover:not(.active){color:var(--text2);}
-
-/* ── VIEWS ── */
-.view{display:none;flex:1;overflow-y:auto;padding:12px;}
-.view.active{display:flex;flex-direction:column;gap:10px;}
-.view::-webkit-scrollbar{width:3px;}
-.view::-webkit-scrollbar-thumb{background:var(--border2);}
-
-/* ── REGISTRAR LAYOUT: scroll arriba, numpad fijo abajo ── */
-#view-registrar{overflow:hidden;padding:0;}
-.reg-scroll{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
-.reg-scroll::-webkit-scrollbar{width:3px;}
-.reg-scroll::-webkit-scrollbar-thumb{background:var(--border2);}
-.reg-numpad{flex-shrink:0;border-top:1px solid var(--border);}
-
-/* ── PANEL ── */
-.panel{background:var(--bg1);border:1px solid var(--border);border-radius:3px;}
-.ph{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:10px;}
-.ph-t{color:var(--text2);}.ph-t em{color:var(--blue);font-style:normal;font-weight:500;}
-.ph-r{color:var(--text4);font-size:9px;}
-.pb{padding:10px;}
-
-/* ── AMOUNT DISPLAY ── */
-.amount-panel{
-  background:var(--bg1);border:1px solid var(--border);border-radius:3px;
-  text-align:center;padding:10px 12px 8px;
-}
-.amount-label{font-size:9px;color:var(--text4);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-.amount-value{
-  font-size:36px;font-weight:700;color:var(--text4);
-  transition:all .1s;letter-spacing:-1px;
-}
-.amount-value.has-value{color:var(--yellow);}
-
-/* ── NUMPAD ── */
-.numpad{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
-  background:var(--border);border:1px solid var(--border);border-radius:3px;overflow:hidden;
-}
-.num-btn{
-  background:var(--bg2);border:none;color:var(--text);
-  font-family:var(--mono);font-size:20px;font-weight:500;
-  padding:11px 0;cursor:pointer;transition:background .1s;
-}
-.num-btn:active{background:var(--bg4);}
-.num-btn.del{color:var(--red);font-size:18px;}
-.num-btn.zero{grid-column:span 1;}
-
-/* ── CATEGORIES ── */
-.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-.cat-btn{
-  background:var(--bg2);border:1px solid var(--border);border-radius:3px;
-  padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s;
-}
-.cat-btn:active{background:var(--bg3);}
-.cat-btn.selected{background:rgba(137,180,250,.1);border-color:var(--blue);}
-.cat-icon{display:flex;justify-content:center;margin-bottom:4px;color:var(--text3);}  .cat-btn.selected .cat-icon{color:var(--blue);}
-.cat-name{font-size:9px;color:var(--text3);letter-spacing:.3px;}
-.cat-btn.selected .cat-name{color:var(--blue);}
-
-/* ── NOTE INPUT ── */
-.note-input{
-  width:100%;background:var(--bg2);border:1px solid var(--border);
-  color:var(--text);font-family:var(--mono);font-size:11px;
-  padding:8px 10px;border-radius:3px;outline:none;
-}
-.note-input:focus{border-color:var(--blue);}
-.note-input::placeholder{color:var(--text4);}
-.section-label{font-size:9px;color:var(--text4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
-
-/* ── SUBMIT ── */
-.submit-btn{
-  width:100%;background:rgba(137,180,250,.1);border:1px solid rgba(137,180,250,.3);
-  color:var(--blue);font-family:var(--mono);font-size:11px;font-weight:700;
-  padding:14px;border-radius:3px;cursor:pointer;letter-spacing:2px;
-  transition:all .15s;text-transform:uppercase;
-}
-.submit-btn:active{background:rgba(137,180,250,.2);}
-.submit-btn:disabled{opacity:.4;cursor:not-allowed;}
-
-/* ── HISTORY ── */
-.hist-item{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 0;border-bottom:1px solid rgba(61,65,102,.3);
-}
-.hist-item:last-child{border-bottom:none;}
-.hist-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center;}
+.panel{display:none;flex:1;overflow-y:auto;flex-direction:column;}
+.panel.active{display:flex;}
+.panel::-webkit-scrollbar{width:2px;}
+.panel::-webkit-scrollbar-thumb{background:var(--border);}
+/* REGISTRAR */
+.reg-top{flex-shrink:0;padding:14px 14px 10px;}
+.amount-display{background:var(--glass);border:0.5px solid var(--border2);border-radius:16px;padding:14px 20px;margin-bottom:10px;text-align:center;}
+.amount-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px;font-family:var(--mono);}
+.amount-val{font-size:40px;font-weight:700;color:var(--blue);font-family:var(--mono);line-height:1;transition:color .2s;}
+.amount-val.has-val{color:var(--yellow);}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.np-btn{background:var(--glass2);border:0.5px solid var(--border);border-radius:12px;padding:14px 8px;font-size:20px;font-weight:600;color:var(--text);font-family:var(--mono);cursor:pointer;text-align:center;transition:all .1s;-webkit-user-select:none;user-select:none;}
+.np-btn:active{background:var(--blue3);border-color:var(--border2);transform:scale(0.95);}
+.np-btn.del{font-size:16px;color:var(--text2);}
+.np-btn.ok{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;border-color:transparent;font-size:13px;letter-spacing:.5px;}
+.np-btn.ok:active{opacity:.85;}
+.reg-scroll{flex:1;overflow-y:auto;padding:0 14px 20px;display:flex;flex-direction:column;gap:14px;}
+.sec-title{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:0.5px;background:var(--border);}
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.cat-btn{background:var(--glass);border:0.5px solid var(--border);border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .15s;-webkit-user-select:none;user-select:none;}
+.cat-btn:active{transform:scale(0.94);}
+.cat-btn.selected{background:rgba(0,180,255,0.1);border-color:var(--border2);}
+.cat-btn.selected .cat-icon{color:var(--cat-color,var(--blue));}
+.cat-btn.selected .cat-name{color:var(--cat-color,var(--blue));}
+.cat-icon{display:flex;justify-content:center;color:var(--text3);}
+.cat-name{font-size:9px;color:var(--text2);letter-spacing:.3px;font-family:var(--mono);}
+textarea.nota-input{background:var(--glass);border:0.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:var(--mono);font-size:13px;width:100%;outline:none;resize:none;}
+textarea.nota-input:focus{border-color:var(--border2);}
+textarea.nota-input::placeholder{color:var(--text3);}
+.btn-reg{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;border:none;border-radius:14px;padding:16px;font-size:14px;font-weight:700;font-family:var(--mono);cursor:pointer;letter-spacing:1px;text-transform:uppercase;width:100%;transition:all .15s;}
+.btn-reg:active{opacity:.85;transform:scale(0.98);}
+/* TOAST */
+.toast{position:fixed;top:74px;left:50%;transform:translateX(-50%) translateY(-16px);background:rgba(0,229,160,0.12);border:0.5px solid rgba(0,229,160,0.4);color:var(--green);font-family:var(--mono);font-size:12px;padding:10px 20px;border-radius:20px;opacity:0;transition:all .3s;z-index:500;white-space:nowrap;backdrop-filter:blur(12px);pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:rgba(255,77,109,0.12);border-color:rgba(255,77,109,0.4);color:var(--red);}
+/* HISTORIAL */
+.hist-panel{padding:14px;display:flex;flex-direction:column;gap:8px;}
+.hist-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.hist-title{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.hist-clear{background:none;border:0.5px solid rgba(255,77,109,0.3);color:var(--red);font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:6px;cursor:pointer;}
+.hist-item{background:var(--glass);border:0.5px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.hist-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center;}
 .hist-body{flex:1;min-width:0;}
-.hist-desc{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.hist-meta{font-size:9px;color:var(--text4);margin-top:2px;}
-.hist-sync{font-size:8px;}
-.hist-amt{font-size:13px;font-weight:700;color:var(--red);flex-shrink:0;}
-
-/* ── STATS GRID ── */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:3px;overflow:hidden;}
-.stat-box{background:var(--bg1);padding:10px;border-bottom:2px solid transparent;}
-.stat-box.red{border-color:var(--red)}.stat-box.yellow{border-color:var(--yellow)}.stat-box.green{border-color:var(--green)}.stat-box.blue{border-color:var(--blue)}
-.stat-lbl{font-size:8px;color:var(--text4);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
-.stat-val{font-size:18px;font-weight:700;}
-.stat-val.red{color:var(--red)}.stat-val.yellow{color:var(--yellow)}.stat-val.green{color:var(--green)}.stat-val.blue{color:var(--blue)}
-
-/* ── UBAR ── */
-.ubar-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
-.ubar-lbl{font-size:10px;color:var(--text2);width:72px;text-align:right;flex-shrink:0;}
-.ubar-track{flex:1;font-size:10px;letter-spacing:-0.5px;overflow:hidden;white-space:nowrap;}
-.ubar-val{font-size:10px;width:48px;text-align:right;flex-shrink:0;}
-
-/* ── CONFIG ── */
-.cfg-row{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid rgba(61,65,102,.3);}
-.cfg-row:last-child{border-bottom:none;}
-.cfg-label{font-size:9px;color:var(--text4);letter-spacing:1px;text-transform:uppercase;}
-.cfg-val{font-size:11px;color:var(--text2);}
-.cfg-input{
-  width:100%;background:var(--bg2);border:1px solid var(--border);
-  color:var(--text);font-family:var(--mono);font-size:10px;
-  padding:8px 10px;border-radius:3px;outline:none;
-}
-.cfg-input:focus{border-color:var(--blue);}
-.cfg-btn{
-  background:rgba(137,180,250,.08);border:1px solid rgba(137,180,250,.25);
-  color:var(--blue);font-family:var(--mono);font-size:10px;font-weight:700;
-  padding:8px 16px;border-radius:3px;cursor:pointer;letter-spacing:1px;
-  text-transform:uppercase;transition:all .15s;align-self:flex-start;
-}
-.cfg-btn:active{background:rgba(137,180,250,.15);}
-.cfg-btn.green{border-color:rgba(166,227,161,.3);color:var(--green);background:rgba(166,227,161,.08);}
-.status-row{display:flex;align-items:center;gap:6px;font-size:10px;}
-.sdot{width:6px;height:6px;border-radius:50%;background:var(--text4);}
-.sdot.ok{background:var(--green);box-shadow:0 0 6px rgba(166,227,161,.4);}
-.sdot.err{background:var(--red);}.sdot.pending{background:var(--yellow);}
-
-/* ── FLASH ── */
-.flash{
-  position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);
-  background:var(--bg3);border:1px solid var(--green);border-radius:3px;
-  padding:10px 20px;text-align:center;opacity:0;transition:all .2s;
-  pointer-events:none;z-index:999;min-width:180px;
-}
-.flash.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.flash-title{font-size:16px;font-weight:700;color:var(--green);}
-.flash-sub{font-size:10px;color:var(--text3);margin-top:2px;}
-
-/* ── EMPTY ── */
-.empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px;color:var(--text4);font-size:11px;}
-.empty span:first-child{font-size:32px;}
-
-/* ── STATUSBAR ── */
-.statusbar{
-  height:18px;background:var(--bg3);border-top:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 10px;flex-shrink:0;font-size:9px;color:var(--text4);
-}
+.hist-cat{font-size:12px;font-weight:600;font-family:var(--mono);}
+.hist-nota{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.hist-time{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.hist-right{text-align:right;flex-shrink:0;}
+.hist-amt{font-size:15px;font-weight:700;color:var(--yellow);font-family:var(--mono);}
+.hist-sync{font-size:9px;margin-top:2px;}
+.hist-sync.ok{color:var(--green);}
+.hist-sync.pen{color:var(--text3);}
+.hist-empty{color:var(--text2);font-size:12px;font-family:var(--mono);text-align:center;padding:40px 0;}
+/* CONFIG */
+.cfg-panel{padding:14px;display:flex;flex-direction:column;gap:12px;}
+.cfg-card{background:var(--glass);border:0.5px solid var(--border);border-radius:14px;padding:14px;}
+.cfg-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;font-family:var(--mono);}
+.cfg-input{background:var(--bg2);border:0.5px solid var(--border);color:var(--text);font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:10px;width:100%;outline:none;margin-bottom:8px;}
+.cfg-input:focus{border-color:var(--border2);}
+.cfg-btn{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;border:none;border-radius:10px;padding:10px;font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;width:100%;}
+.cfg-btn.danger{background:linear-gradient(135deg,#c0392b,var(--red));margin-top:0;}
+.cfg-stat{display:flex;justify-content:space-between;align-items:center;padding:4px 0;}
+.cfg-stat-val{font-size:14px;font-weight:700;color:var(--blue);font-family:var(--mono);}
+.cfg-link{display:block;text-align:center;padding:12px;background:var(--glass2);border:0.5px solid var(--border2);border-radius:10px;color:var(--blue);font-family:var(--mono);font-size:11px;text-decoration:none;letter-spacing:.5px;}
 </style>
 </head>
 <body>
-<div class="root">
-
-<!-- TOPBAR -->
-<div class="topbar">
-  <div>
-    <div class="tb-title">GastoRápido</div>
-  </div>
-  <div class="tb-right">
-    <div class="tb-pill">hoy: <span id="pillHoy">$0</span></div>
-    <div class="tb-badge" id="syncBadge">○ config</div>
-  </div>
+<div class="blobs">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 </div>
-
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('registrar')">＋ nuevo</button>
-  <button class="tab" onclick="switchTab('historial')">historial</button>
-  <button class="tab" onclick="switchTab('resumen')">resumen</button>
-  <button class="tab" onclick="switchTab('config')">config</button>
-</div>
-
-<!-- ── REGISTRAR ── -->
-<div class="view active" id="view-registrar">
-
-  <!-- MONTO + NUMPAD fijo arriba -->
-  <div class="reg-numpad" style="border-top:none;border-bottom:1px solid var(--border);">
-    <div class="amount-panel">
-      <div class="amount-label">monto del gasto</div>
-      <div class="amount-value" id="amountDisplay">$0</div>
+<div class="toast" id="toast"></div>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="tb-brand">GASTORÁPIDO</div>
+      <div style="font-size:9px;color:var(--text2);font-family:var(--mono)" id="tbDate">--</div>
     </div>
-    <div class="numpad">
-      <button class="num-btn" onclick="numPress('1')">1</button>
-      <button class="num-btn" onclick="numPress('2')">2</button>
-      <button class="num-btn" onclick="numPress('3')">3</button>
-      <button class="num-btn" onclick="numPress('4')">4</button>
-      <button class="num-btn" onclick="numPress('5')">5</button>
-      <button class="num-btn" onclick="numPress('6')">6</button>
-      <button class="num-btn" onclick="numPress('7')">7</button>
-      <button class="num-btn" onclick="numPress('8')">8</button>
-      <button class="num-btn" onclick="numPress('9')">9</button>
-      <button class="num-btn" onclick="numPress('.')">.</button>
-      <button class="num-btn" onclick="numPress('0')">0</button>
-      <button class="num-btn del" onclick="numDel()">⌫</button>
-    </div>
-  </div>
-
-  <!-- SCROLL: categorías + nota + botón -->
-  <div class="reg-scroll">
-
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>categoría</em></span><span class="ph-r" id="selCatLabel">Gasolina</span></div>
-    <div class="pb">
-      <div class="cats" id="cats">
-        <div class="cat-btn selected" data-cat="Gasolina" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="2" y="0" width="2" height="2" fill="currentColor"/><rect x="4" y="0" width="2" height="2" fill="currentColor"/><rect x="6" y="0" width="2" height="2" fill="currentColor"/><rect x="8" y="0" width="2" height="2" fill="currentColor"/><rect x="10" y="0" width="2" height="2" fill="currentColor"/><rect x="12" y="0" width="2" height="2" fill="currentColor"/><rect x="14" y="0" width="2" height="2" fill="currentColor"/><rect x="16" y="0" width="2" height="2" fill="currentColor"/><rect x="0" y="2" width="2" height="2" fill="currentColor"/><rect x="18" y="2" width="2" height="2" fill="currentColor"/><rect x="0" y="4" width="2" height="2" fill="currentColor"/><rect x="4" y="4" width="2" height="2" fill="currentColor"/><rect x="6" y="4" width="2" height="2" fill="currentColor"/><rect x="12" y="4" width="2" height="2" fill="currentColor"/><rect x="14" y="4" width="2" height="2" fill="currentColor"/><rect x="18" y="4" width="2" height="2" fill="currentColor"/><rect x="0" y="6" width="2" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/><rect x="12" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="18" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="2" height="2" fill="currentColor"/><rect x="18" y="8" width="2" height="2" fill="currentColor"/><rect x="0" y="10" width="2" height="2" fill="currentColor"/><rect x="6" y="10" width="2" height="2" fill="currentColor"/><rect x="8" y="10" width="2" height="2" fill="currentColor"/><rect x="10" y="10" width="2" height="2" fill="currentColor"/><rect x="12" y="10" width="2" height="2" fill="currentColor"/><rect x="18" y="10" width="2" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="6" y="12" width="2" height="2" fill="currentColor"/><rect x="12" y="12" width="2" height="2" fill="currentColor"/><rect x="18" y="12" width="2" height="2" fill="currentColor"/><rect x="0" y="14" width="2" height="2" fill="currentColor"/><rect x="6" y="14" width="2" height="2" fill="currentColor"/><rect x="12" y="14" width="2" height="2" fill="currentColor"/><rect x="18" y="14" width="2" height="2" fill="currentColor"/><rect x="0" y="16" width="2" height="2" fill="currentColor"/><rect x="18" y="16" width="2" height="2" fill="currentColor"/><rect x="2" y="18" width="2" height="2" fill="currentColor"/><rect x="4" y="18" width="2" height="2" fill="currentColor"/><rect x="6" y="18" width="2" height="2" fill="currentColor"/><rect x="8" y="18" width="2" height="2" fill="currentColor"/><rect x="10" y="18" width="2" height="2" fill="currentColor"/><rect x="12" y="18" width="2" height="2" fill="currentColor"/><rect x="14" y="18" width="2" height="2" fill="currentColor"/><rect x="16" y="18" width="2" height="2" fill="currentColor"/></svg></span><span class="cat-name">Gasolina</span></div>
-        <div class="cat-btn" data-cat="Mandado" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="6" y="0" width="2" height="2" fill="currentColor"/><rect x="8" y="0" width="2" height="2" fill="currentColor"/><rect x="10" y="0" width="2" height="2" fill="currentColor"/><rect x="4" y="2" width="2" height="2" fill="currentColor"/><rect x="12" y="2" width="2" height="2" fill="currentColor"/><rect x="2" y="4" width="2" height="2" fill="currentColor"/><rect x="14" y="4" width="2" height="2" fill="currentColor"/><rect x="0" y="6" width="2" height="2" fill="currentColor"/><rect x="2" y="6" width="2" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="6" width="2" height="2" fill="currentColor"/><rect x="10" y="6" width="2" height="2" fill="currentColor"/><rect x="12" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="16" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="2" height="2" fill="currentColor"/><rect x="2" y="8" width="2" height="2" fill="currentColor"/><rect x="16" y="8" width="2" height="2" fill="currentColor"/><rect x="0" y="10" width="2" height="2" fill="currentColor"/><rect x="4" y="10" width="2" height="2" fill="currentColor"/><rect x="14" y="10" width="2" height="2" fill="currentColor"/><rect x="16" y="10" width="2" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="6" y="12" width="2" height="2" fill="currentColor"/><rect x="12" y="12" width="2" height="2" fill="currentColor"/><rect x="16" y="12" width="2" height="2" fill="currentColor"/><rect x="0" y="14" width="2" height="2" fill="currentColor"/><rect x="8" y="14" width="2" height="2" fill="currentColor"/><rect x="10" y="14" width="2" height="2" fill="currentColor"/><rect x="16" y="14" width="2" height="2" fill="currentColor"/><rect x="0" y="16" width="2" height="2" fill="currentColor"/><rect x="16" y="16" width="2" height="2" fill="currentColor"/><rect x="0" y="18" width="2" height="2" fill="currentColor"/><rect x="2" y="18" width="2" height="2" fill="currentColor"/><rect x="4" y="18" width="2" height="2" fill="currentColor"/><rect x="6" y="18" width="2" height="2" fill="currentColor"/><rect x="8" y="18" width="2" height="2" fill="currentColor"/><rect x="10" y="18" width="2" height="2" fill="currentColor"/><rect x="12" y="18" width="2" height="2" fill="currentColor"/><rect x="14" y="18" width="2" height="2" fill="currentColor"/><rect x="16" y="18" width="2" height="2" fill="currentColor"/></svg></span><span class="cat-name">Mandado</span></div>
-        <div class="cat-btn" data-cat="Comida" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="4" y="0" width="2" height="2" fill="currentColor"/><rect x="12" y="0" width="2" height="2" fill="currentColor"/><rect x="2" y="2" width="2" height="2" fill="currentColor"/><rect x="6" y="2" width="2" height="2" fill="currentColor"/><rect x="10" y="2" width="2" height="2" fill="currentColor"/><rect x="14" y="2" width="2" height="2" fill="currentColor"/><rect x="4" y="4" width="2" height="2" fill="currentColor"/><rect x="12" y="4" width="2" height="2" fill="currentColor"/><rect x="2" y="6" width="2" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="6" width="2" height="2" fill="currentColor"/><rect x="10" y="6" width="2" height="2" fill="currentColor"/><rect x="12" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="2" height="2" fill="currentColor"/><rect x="16" y="8" width="2" height="2" fill="currentColor"/><rect x="0" y="10" width="2" height="2" fill="currentColor"/><rect x="16" y="10" width="2" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="16" y="12" width="2" height="2" fill="currentColor"/><rect x="2" y="14" width="2" height="2" fill="currentColor"/><rect x="4" y="14" width="2" height="2" fill="currentColor"/><rect x="6" y="14" width="2" height="2" fill="currentColor"/><rect x="8" y="14" width="2" height="2" fill="currentColor"/><rect x="10" y="14" width="2" height="2" fill="currentColor"/><rect x="12" y="14" width="2" height="2" fill="currentColor"/><rect x="14" y="14" width="2" height="2" fill="currentColor"/><rect x="6" y="16" width="2" height="2" fill="currentColor"/><rect x="8" y="16" width="2" height="2" fill="currentColor"/><rect x="10" y="16" width="2" height="2" fill="currentColor"/><rect x="6" y="18" width="2" height="2" fill="currentColor"/><rect x="8" y="18" width="2" height="2" fill="currentColor"/><rect x="10" y="18" width="2" height="2" fill="currentColor"/></svg></span><span class="cat-name">Comida</span></div>
-        <div class="cat-btn" data-cat="Recibos" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="2" y="0" width="12" height="2" fill="currentColor"/><rect x="0" y="2" width="2" height="16" fill="currentColor"/><rect x="14" y="2" width="2" height="16" fill="currentColor"/><rect x="4" y="4" width="8" height="2" fill="currentColor"/><rect x="4" y="8" width="8" height="2" fill="currentColor"/><rect x="4" y="12" width="8" height="2" fill="currentColor"/><rect x="2" y="18" width="12" height="2" fill="currentColor"/></svg></span><span class="cat-name">Recibos</span></div>
-        <div class="cat-btn" data-cat="Transporte" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="6" y="0" width="8" height="2" fill="currentColor"/><rect x="2" y="2" width="16" height="2" fill="currentColor"/><rect x="0" y="4" width="20" height="2" fill="currentColor"/><rect x="0" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="6" width="4" height="2" fill="currentColor"/><rect x="18" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="20" height="2" fill="currentColor"/><rect x="0" y="10" width="20" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="18" y="12" width="2" height="2" fill="currentColor"/><rect x="0" y="14" width="20" height="2" fill="currentColor"/><rect x="2" y="16" width="4" height="4" fill="currentColor"/><rect x="14" y="16" width="4" height="4" fill="currentColor"/></svg></span><span class="cat-name">Transport</span></div>
-        <div class="cat-btn" data-cat="Deuda" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="4" y="0" width="12" height="2" fill="currentColor"/><rect x="2" y="2" width="2" height="2" fill="currentColor"/><rect x="16" y="2" width="2" height="2" fill="currentColor"/><rect x="0" y="4" width="20" height="2" fill="currentColor"/><rect x="0" y="6" width="20" height="2" fill="currentColor"/><rect x="0" y="8" width="20" height="2" fill="currentColor"/><rect x="0" y="10" width="20" height="2" fill="currentColor"/><rect x="0" y="12" width="6" height="2" fill="currentColor"/><rect x="8" y="12" width="4" height="2" fill="currentColor"/><rect x="14" y="12" width="6" height="2" fill="currentColor"/><rect x="2" y="14" width="2" height="2" fill="currentColor"/><rect x="16" y="14" width="2" height="2" fill="currentColor"/><rect x="4" y="16" width="12" height="2" fill="currentColor"/></svg></span><span class="cat-name">Deuda</span></div>
-        <div class="cat-btn" data-cat="Plasma" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="8" y="0" width="4" height="2" fill="currentColor"/><rect x="6" y="2" width="8" height="2" fill="currentColor"/><rect x="6" y="4" width="2" height="10" fill="currentColor"/><rect x="12" y="4" width="2" height="10" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="8" width="4" height="2" fill="currentColor"/><rect x="6" y="14" width="8" height="2" fill="currentColor"/><rect x="8" y="16" width="4" height="2" fill="currentColor"/><rect x="0" y="10" width="4" height="2" fill="currentColor"/><rect x="16" y="10" width="4" height="2" fill="currentColor"/></svg></span><span class="cat-name">Plasma</span></div>
-        <div class="cat-btn" data-cat="Emergencia" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="8" y="0" width="4" height="2" fill="currentColor"/><rect x="6" y="2" width="8" height="2" fill="currentColor"/><rect x="4" y="4" width="12" height="2" fill="currentColor"/><rect x="2" y="6" width="16" height="2" fill="currentColor"/><rect x="0" y="8" width="20" height="2" fill="currentColor"/><rect x="0" y="10" width="20" height="2" fill="currentColor"/><rect x="8" y="6" width="4" height="6" fill="currentColor"/><rect x="6" y="10" width="8" height="2" fill="currentColor"/><rect x="2" y="14" width="6" height="2" fill="currentColor"/><rect x="12" y="14" width="6" height="2" fill="currentColor"/><rect x="8" y="16" width="4" height="4" fill="currentColor"/></svg></span><span class="cat-name">Emergencia</span></div>
-        <div class="cat-btn" data-cat="Otro" onclick="selectCat(this)"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="0" y="0" width="20" height="2" fill="currentColor"/><rect x="0" y="18" width="20" height="2" fill="currentColor"/><rect x="0" y="2" width="2" height="16" fill="currentColor"/><rect x="18" y="2" width="2" height="16" fill="currentColor"/><rect x="4" y="4" width="12" height="2" fill="currentColor"/><rect x="4" y="14" width="12" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="8" fill="currentColor"/><rect x="14" y="6" width="2" height="8" fill="currentColor"/><rect x="8" y="8" width="4" height="4" fill="currentColor"/></svg></span><span class="cat-name">Otro</span></div>
+    <div class="tb-right">
+      <div style="text-align:right">
+        <div class="tb-kpi-val" id="tbHoy">$0</div>
+        <div class="tb-kpi-lbl">hoy</div>
       </div>
-    
+      <div class="sync-dot" id="syncDot"></div>
     </div>
   </div>
-
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>nota</em> · opcional</span></div>
-    <div class="pb">
-      <input class="note-input" id="noteInput" placeholder="ej: taquería, oxxo, medicamento..." maxlength="80">
+  <div class="tabs">
+    <button class="tab active" onclick="swTab('reg',this)">＋ registrar</button>
+    <button class="tab" onclick="swTab('hist',this)">historial</button>
+    <button class="tab" onclick="swTab('cfg',this)">config</button>
+  </div>
+  <!-- REGISTRAR -->
+  <div class="panel active" id="panel-reg">
+    <div class="reg-top">
+      <div class="amount-display">
+        <div class="amount-label">monto del gasto</div>
+        <div class="amount-val" id="amountDisplay">$0</div>
+      </div>
+      <div class="numpad">
+        <button class="np-btn" onclick="np('1')">1</button>
+        <button class="np-btn" onclick="np('2')">2</button>
+        <button class="np-btn" onclick="np('3')">3</button>
+        <button class="np-btn" onclick="np('4')">4</button>
+        <button class="np-btn" onclick="np('5')">5</button>
+        <button class="np-btn" onclick="np('6')">6</button>
+        <button class="np-btn" onclick="np('7')">7</button>
+        <button class="np-btn" onclick="np('8')">8</button>
+        <button class="np-btn" onclick="np('9')">9</button>
+        <button class="np-btn del" onclick="np('del')">⌫</button>
+        <button class="np-btn" onclick="np('0')">0</button>
+        <button class="np-btn ok" onclick="registrar()">✓ OK</button>
+      </div>
+    </div>
+    <div class="reg-scroll">
+      <div>
+        <div class="sec-title">categoría</div>
+        <div class="cat-grid" id="cats">
+        <div class="cat-btn selected" data-cat="Gasolina" onclick="selectCat(this)" style="--cat-color:#ff8c00"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="2" y="0" width="2" height="2" fill="currentColor"/><rect x="4" y="0" width="2" height="2" fill="currentColor"/><rect x="6" y="0" width="2" height="2" fill="currentColor"/><rect x="8" y="0" width="2" height="2" fill="currentColor"/><rect x="10" y="0" width="2" height="2" fill="currentColor"/><rect x="12" y="0" width="2" height="2" fill="currentColor"/><rect x="14" y="0" width="2" height="2" fill="currentColor"/><rect x="16" y="0" width="2" height="2" fill="currentColor"/><rect x="0" y="2" width="2" height="2" fill="currentColor"/><rect x="18" y="2" width="2" height="2" fill="currentColor"/><rect x="0" y="4" width="2" height="2" fill="currentColor"/><rect x="4" y="4" width="2" height="2" fill="currentColor"/><rect x="6" y="4" width="2" height="2" fill="currentColor"/><rect x="12" y="4" width="2" height="2" fill="currentColor"/><rect x="14" y="4" width="2" height="2" fill="currentColor"/><rect x="18" y="4" width="2" height="2" fill="currentColor"/><rect x="0" y="6" width="2" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/><rect x="12" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="18" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="2" height="2" fill="currentColor"/><rect x="18" y="8" width="2" height="2" fill="currentColor"/><rect x="0" y="10" width="2" height="2" fill="currentColor"/><rect x="6" y="10" width="2" height="2" fill="currentColor"/><rect x="8" y="10" width="2" height="2" fill="currentColor"/><rect x="10" y="10" width="2" height="2" fill="currentColor"/><rect x="12" y="10" width="2" height="2" fill="currentColor"/><rect x="18" y="10" width="2" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="6" y="12" width="2" height="2" fill="currentColor"/><rect x="12" y="12" width="2" height="2" fill="currentColor"/><rect x="18" y="12" width="2" height="2" fill="currentColor"/><rect x="0" y="14" width="2" height="2" fill="currentColor"/><rect x="6" y="14" width="2" height="2" fill="currentColor"/><rect x="12" y="14" width="2" height="2" fill="currentColor"/><rect x="18" y="14" width="2" height="2" fill="currentColor"/><rect x="0" y="16" width="2" height="2" fill="currentColor"/><rect x="18" y="16" width="2" height="2" fill="currentColor"/><rect x="2" y="18" width="2" height="2" fill="currentColor"/><rect x="4" y="18" width="2" height="2" fill="currentColor"/><rect x="6" y="18" width="2" height="2" fill="currentColor"/><rect x="8" y="18" width="2" height="2" fill="currentColor"/><rect x="10" y="18" width="2" height="2" fill="currentColor"/><rect x="12" y="18" width="2" height="2" fill="currentColor"/><rect x="14" y="18" width="2" height="2" fill="currentColor"/><rect x="16" y="18" width="2" height="2" fill="currentColor"/></svg></span><span class="cat-name">Gasolina</span></div>
+        <div class="cat-btn" data-cat="Mandado" onclick="selectCat(this)" style="--cat-color:#00b4ff"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="6" y="0" width="2" height="2" fill="currentColor"/><rect x="8" y="0" width="2" height="2" fill="currentColor"/><rect x="10" y="0" width="2" height="2" fill="currentColor"/><rect x="4" y="2" width="2" height="2" fill="currentColor"/><rect x="12" y="2" width="2" height="2" fill="currentColor"/><rect x="2" y="4" width="2" height="2" fill="currentColor"/><rect x="14" y="4" width="2" height="2" fill="currentColor"/><rect x="0" y="6" width="2" height="2" fill="currentColor"/><rect x="2" y="6" width="2" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="6" width="2" height="2" fill="currentColor"/><rect x="10" y="6" width="2" height="2" fill="currentColor"/><rect x="12" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="16" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="2" height="2" fill="currentColor"/><rect x="2" y="8" width="2" height="2" fill="currentColor"/><rect x="16" y="8" width="2" height="2" fill="currentColor"/><rect x="0" y="10" width="2" height="2" fill="currentColor"/><rect x="4" y="10" width="2" height="2" fill="currentColor"/><rect x="14" y="10" width="2" height="2" fill="currentColor"/><rect x="16" y="10" width="2" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="6" y="12" width="2" height="2" fill="currentColor"/><rect x="12" y="12" width="2" height="2" fill="currentColor"/><rect x="16" y="12" width="2" height="2" fill="currentColor"/><rect x="0" y="14" width="2" height="2" fill="currentColor"/><rect x="8" y="14" width="2" height="2" fill="currentColor"/><rect x="10" y="14" width="2" height="2" fill="currentColor"/><rect x="16" y="14" width="2" height="2" fill="currentColor"/><rect x="0" y="16" width="2" height="2" fill="currentColor"/><rect x="16" y="16" width="2" height="2" fill="currentColor"/><rect x="0" y="18" width="2" height="2" fill="currentColor"/><rect x="2" y="18" width="2" height="2" fill="currentColor"/><rect x="4" y="18" width="2" height="2" fill="currentColor"/><rect x="6" y="18" width="2" height="2" fill="currentColor"/><rect x="8" y="18" width="2" height="2" fill="currentColor"/><rect x="10" y="18" width="2" height="2" fill="currentColor"/><rect x="12" y="18" width="2" height="2" fill="currentColor"/><rect x="14" y="18" width="2" height="2" fill="currentColor"/><rect x="16" y="18" width="2" height="2" fill="currentColor"/></svg></span><span class="cat-name">Mandado</span></div>
+        <div class="cat-btn" data-cat="Comida" onclick="selectCat(this)" style="--cat-color:#ff4d6d"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="4" y="0" width="2" height="2" fill="currentColor"/><rect x="12" y="0" width="2" height="2" fill="currentColor"/><rect x="2" y="2" width="2" height="2" fill="currentColor"/><rect x="6" y="2" width="2" height="2" fill="currentColor"/><rect x="10" y="2" width="2" height="2" fill="currentColor"/><rect x="14" y="2" width="2" height="2" fill="currentColor"/><rect x="4" y="4" width="2" height="2" fill="currentColor"/><rect x="12" y="4" width="2" height="2" fill="currentColor"/><rect x="2" y="6" width="2" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="6" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="6" width="2" height="2" fill="currentColor"/><rect x="10" y="6" width="2" height="2" fill="currentColor"/><rect x="12" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="2" height="2" fill="currentColor"/><rect x="16" y="8" width="2" height="2" fill="currentColor"/><rect x="0" y="10" width="2" height="2" fill="currentColor"/><rect x="16" y="10" width="2" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="16" y="12" width="2" height="2" fill="currentColor"/><rect x="2" y="14" width="2" height="2" fill="currentColor"/><rect x="4" y="14" width="2" height="2" fill="currentColor"/><rect x="6" y="14" width="2" height="2" fill="currentColor"/><rect x="8" y="14" width="2" height="2" fill="currentColor"/><rect x="10" y="14" width="2" height="2" fill="currentColor"/><rect x="12" y="14" width="2" height="2" fill="currentColor"/><rect x="14" y="14" width="2" height="2" fill="currentColor"/><rect x="6" y="16" width="2" height="2" fill="currentColor"/><rect x="8" y="16" width="2" height="2" fill="currentColor"/><rect x="10" y="16" width="2" height="2" fill="currentColor"/><rect x="6" y="18" width="2" height="2" fill="currentColor"/><rect x="8" y="18" width="2" height="2" fill="currentColor"/><rect x="10" y="18" width="2" height="2" fill="currentColor"/></svg></span><span class="cat-name">Comida</span></div>
+        <div class="cat-btn" data-cat="Recibos" onclick="selectCat(this)" style="--cat-color:#b388ff"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="2" y="0" width="12" height="2" fill="currentColor"/><rect x="0" y="2" width="2" height="16" fill="currentColor"/><rect x="14" y="2" width="2" height="16" fill="currentColor"/><rect x="4" y="4" width="8" height="2" fill="currentColor"/><rect x="4" y="8" width="8" height="2" fill="currentColor"/><rect x="4" y="12" width="8" height="2" fill="currentColor"/><rect x="2" y="18" width="12" height="2" fill="currentColor"/></svg></span><span class="cat-name">Recibos</span></div>
+        <div class="cat-btn" data-cat="Transporte" onclick="selectCat(this)" style="--cat-color:#00e5a0"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="6" y="0" width="8" height="2" fill="currentColor"/><rect x="2" y="2" width="16" height="2" fill="currentColor"/><rect x="0" y="4" width="20" height="2" fill="currentColor"/><rect x="0" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="6" width="4" height="2" fill="currentColor"/><rect x="18" y="6" width="2" height="2" fill="currentColor"/><rect x="0" y="8" width="20" height="2" fill="currentColor"/><rect x="0" y="10" width="20" height="2" fill="currentColor"/><rect x="0" y="12" width="2" height="2" fill="currentColor"/><rect x="18" y="12" width="2" height="2" fill="currentColor"/><rect x="0" y="14" width="20" height="2" fill="currentColor"/><rect x="2" y="16" width="4" height="4" fill="currentColor"/><rect x="14" y="16" width="4" height="4" fill="currentColor"/></svg></span><span class="cat-name">Transport</span></div>
+        <div class="cat-btn" data-cat="Deuda" onclick="selectCat(this)" style="--cat-color:#ff4d6d"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="4" y="0" width="12" height="2" fill="currentColor"/><rect x="2" y="2" width="2" height="2" fill="currentColor"/><rect x="16" y="2" width="2" height="2" fill="currentColor"/><rect x="0" y="4" width="20" height="2" fill="currentColor"/><rect x="0" y="6" width="20" height="2" fill="currentColor"/><rect x="0" y="8" width="20" height="2" fill="currentColor"/><rect x="0" y="10" width="20" height="2" fill="currentColor"/><rect x="0" y="12" width="6" height="2" fill="currentColor"/><rect x="8" y="12" width="4" height="2" fill="currentColor"/><rect x="14" y="12" width="6" height="2" fill="currentColor"/><rect x="2" y="14" width="2" height="2" fill="currentColor"/><rect x="16" y="14" width="2" height="2" fill="currentColor"/><rect x="4" y="16" width="12" height="2" fill="currentColor"/></svg></span><span class="cat-name">Deuda</span></div>
+        <div class="cat-btn" data-cat="Plasma" onclick="selectCat(this)" style="--cat-color:#ffd166"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="8" y="0" width="4" height="2" fill="currentColor"/><rect x="6" y="2" width="8" height="2" fill="currentColor"/><rect x="6" y="4" width="2" height="10" fill="currentColor"/><rect x="12" y="4" width="2" height="10" fill="currentColor"/><rect x="4" y="6" width="2" height="2" fill="currentColor"/><rect x="14" y="6" width="2" height="2" fill="currentColor"/><rect x="8" y="8" width="4" height="2" fill="currentColor"/><rect x="6" y="14" width="8" height="2" fill="currentColor"/><rect x="8" y="16" width="4" height="2" fill="currentColor"/><rect x="0" y="10" width="4" height="2" fill="currentColor"/><rect x="16" y="10" width="4" height="2" fill="currentColor"/></svg></span><span class="cat-name">Plasma</span></div>
+        <div class="cat-btn" data-cat="Emergencia" onclick="selectCat(this)" style="--cat-color:#ff4d6d"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="8" y="0" width="4" height="2" fill="currentColor"/><rect x="6" y="2" width="8" height="2" fill="currentColor"/><rect x="4" y="4" width="12" height="2" fill="currentColor"/><rect x="2" y="6" width="16" height="2" fill="currentColor"/><rect x="0" y="8" width="20" height="2" fill="currentColor"/><rect x="0" y="10" width="20" height="2" fill="currentColor"/><rect x="8" y="6" width="4" height="6" fill="currentColor"/><rect x="6" y="10" width="8" height="2" fill="currentColor"/><rect x="2" y="14" width="6" height="2" fill="currentColor"/><rect x="12" y="14" width="6" height="2" fill="currentColor"/><rect x="8" y="16" width="4" height="4" fill="currentColor"/></svg></span><span class="cat-name">Emergencia</span></div>
+        <div class="cat-btn" data-cat="Otro" onclick="selectCat(this)" style="--cat-color:#94a3b8"><span class="cat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="22" height="22"><rect x="0" y="0" width="20" height="2" fill="currentColor"/><rect x="0" y="18" width="20" height="2" fill="currentColor"/><rect x="0" y="2" width="2" height="16" fill="currentColor"/><rect x="18" y="2" width="2" height="16" fill="currentColor"/><rect x="4" y="4" width="12" height="2" fill="currentColor"/><rect x="4" y="14" width="12" height="2" fill="currentColor"/><rect x="4" y="6" width="2" height="8" fill="currentColor"/><rect x="14" y="6" width="2" height="8" fill="currentColor"/><rect x="8" y="8" width="4" height="4" fill="currentColor"/></svg></span><span class="cat-name">Otro</span></div>
+        
+        </div>
+      </div>
+      <div>
+        <div class="sec-title">nota</div>
+        <textarea class="nota-input" id="notaInput" rows="2" placeholder="descripción opcional..."></textarea>
+      </div>
+      <button class="btn-reg" id="btnReg" onclick="registrar()">REGISTRAR GASTO</button>
     </div>
   </div>
-
-  <button class="submit-btn" id="submitBtn" onclick="submitGasto()">REGISTRAR GASTO</button>
-
-  </div><!-- .reg-scroll -->
-
-</div>
-
-<!-- ── HISTORIAL ── -->
-<div class="view" id="view-historial">
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>historial</em> · local</span><span class="ph-r" id="histCount">0 registros</span></div>
-    <div class="pb" id="historyList">
-      <div class="empty"><span>📭</span><span>Sin gastos aún.</span></div>
+  <!-- HISTORIAL -->
+  <div class="panel" id="panel-hist">
+    <div class="hist-panel">
+      <div class="hist-header">
+        <span class="hist-title" id="histTitle">-- registros</span>
+        <button class="hist-clear" onclick="clearGastos()">limpiar</button>
+      </div>
+      <div id="histList"></div>
     </div>
   </div>
-</div>
-
-<!-- ── RESUMEN ── -->
-<div class="view" id="view-resumen">
-
-  <div class="stats-grid">
-    <div class="stat-box red"><div class="stat-lbl">gastado hoy</div><div class="stat-val red" id="statHoy">$0</div></div>
-    <div class="stat-box yellow"><div class="stat-lbl">esta semana</div><div class="stat-val yellow" id="statSemana">$0</div></div>
-    <div class="stat-box green"><div class="stat-lbl">libre estimado</div><div class="stat-val green" id="statLibre">$4,132</div></div>
-    <div class="stat-box blue"><div class="stat-lbl">registros</div><div class="stat-val blue" id="statCount">0</div></div>
-  </div>
-
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>presupuesto</em> · semana actual</span></div>
-    <div class="pb" id="progressBars"></div>
-  </div>
-
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>info</em> · flujo base</span></div>
-    <div class="pb">
-      <div style="display:flex;flex-direction:column;gap:4px;font-size:11px;">
-        <div style="display:flex;justify-content:space-between"><span class="ph-r">Libre semanal base</span><span style="color:var(--yellow)">$4,132</span></div>
-        <div style="display:flex;justify-content:space-between"><span class="ph-r">Día de cobro</span><span style="color:var(--text2)">Jueves</span></div>
-        <div style="display:flex;justify-content:space-between"><span class="ph-r">Sheets sync</span><span id="infoSync" style="color:var(--text4)">no configurado</span></div>
-        <div style="display:flex;justify-content:space-between"><span class="ph-r">Dashboard</span><span><a href="dashboard.html" style="color:var(--blue);text-decoration:none;font-size:10px">→ ver dashboard</a></span></div>
+  <!-- CONFIG -->
+  <div class="panel" id="panel-cfg">
+    <div class="cfg-panel">
+      <div class="cfg-card">
+        <div class="cfg-label">apps script url</div>
+        <input class="cfg-input" id="cfgUrl" placeholder="https://script.google.com/macros/s/...">
+        <button class="cfg-btn" onclick="saveUrl()">GUARDAR URL</button>
+      </div>
+      <div class="cfg-card">
+        <div class="cfg-label">estadísticas</div>
+        <div class="cfg-stat"><span style="font-size:11px;color:var(--text2);font-family:var(--mono)">registros totales</span><span class="cfg-stat-val" id="cfgTotal">0</span></div>
+        <div class="cfg-stat"><span style="font-size:11px;color:var(--text2);font-family:var(--mono)">gastado hoy</span><span class="cfg-stat-val" style="color:var(--yellow)" id="cfgHoy">$0</span></div>
+        <div class="cfg-stat"><span style="font-size:11px;color:var(--text2);font-family:var(--mono)">gastado semana</span><span class="cfg-stat-val" style="color:var(--green)" id="cfgSem">$0</span></div>
+        <div class="cfg-stat"><span style="font-size:11px;color:var(--text2);font-family:var(--mono)">libre estimado</span><span class="cfg-stat-val" style="color:var(--blue)" id="cfgLibre">$4,132</span></div>
+      </div>
+      <div class="cfg-card">
+        <div class="cfg-label">accesos directos</div>
+        <a class="cfg-link" href="dashboard.html">→ abrir dashboard</a>
+      </div>
+      <div class="cfg-card">
+        <div class="cfg-label">datos locales</div>
+        <button class="cfg-btn danger" onclick="clearGastos()">LIMPIAR HISTORIAL</button>
       </div>
     </div>
   </div>
-
 </div>
-
-<!-- ── CONFIG ── -->
-<div class="view" id="view-config">
-
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>sheets</em> · conexión apps script</span></div>
-    <div class="pb">
-      <div class="cfg-row">
-        <div class="cfg-label">estado</div>
-        <div class="status-row"><div class="sdot" id="statusDot"></div><span id="statusText" style="color:var(--text3)">sin configurar</span></div>
-      </div>
-      <div class="cfg-row">
-        <div class="cfg-label">url del deployment</div>
-        <input class="cfg-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" type="url">
-      </div>
-      <div class="cfg-row">
-        <button class="cfg-btn" onclick="saveConfig()">GUARDAR Y PROBAR</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>datos</em> · local storage</span></div>
-    <div class="pb">
-      <div class="cfg-row">
-        <div class="cfg-label">gastos guardados localmente</div>
-        <div class="cfg-val" id="cfgCount">0 registros</div>
-      </div>
-      <div class="cfg-row">
-        <button class="cfg-btn" style="border-color:rgba(243,139,168,.25);color:var(--red);background:rgba(243,139,168,.08)" onclick="clearData()">BORRAR DATOS LOCALES</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="ph"><span class="ph-t"><em>accesos</em> · links rápidos</span></div>
-    <div class="pb">
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;">
-        <a href="dashboard.html" style="color:var(--blue);text-decoration:none">→ Dashboard financiero</a>
-        <a href="https://docs.google.com/spreadsheets/d/1WTGBS0QuS6VcgNOhYcVBzP2yfECHT7pxeBjCoiZaK1E" target="_blank" style="color:var(--teal);text-decoration:none">→ Google Sheets</a>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- FLASH -->
-<div class="flash" id="flash">
-  <div class="flash-title" id="flashTitle"></div>
-  <div class="flash-sub" id="flashSub"></div>
-</div>
-
-<!-- STATUSBAR -->
-<div class="statusbar">
-  <span id="stLeft">GastoRápido · v2</span>
-  <span id="stRight" style="color:var(--teal)">sem <span id="stWeek">--</span> · 2026</span>
-</div>
-
-</div><!-- .root -->
-
 <script>
+
 const LIBRE_SEMANAL = 4132;
 const CAT_COLORS = {
   Gasolina:'#a6e3a1',Mandado:'#89dceb',Comida:'#f9e2af',
@@ -405,7 +233,7 @@ function uBar(pct,color,w=16){const f=Math.round((pct/100)*w),e=w-f;return`<span
 function init(){
   document.getElementById('stWeek').textContent = gw(new Date());
   if(scriptURL){
-    document.getElementById('scriptUrl').value = scriptURL;
+    document.getElementById('cfgUrl').value = scriptURL;
     updateStatusDot('ok','conectado a google sheets ✓');
     document.getElementById('syncBadge').textContent='● sheets';
     document.getElementById('syncBadge').className='tb-badge';
@@ -414,8 +242,8 @@ function init(){
   } else {
     updateStatusDot('pending','sin configurar');
   }
-  renderHistory();renderResumen();updatePill();
-  document.getElementById('cfgCount').textContent = gastos.length + ' registros';
+  renderHist();renderCfg();updatePill();
+  document.getElementById('cfgTotal').textContent = gastos.length + ' registros';
 }
 
 // ── NUMPAD ──
@@ -462,17 +290,17 @@ async function submitGasto(){
   amountStr='';updateAmountDisplay();
   document.getElementById('noteInput').value='';
   btn.disabled=false;btn.textContent='REGISTRAR GASTO';
-  renderHistory();renderResumen();updatePill();
-  document.getElementById('cfgCount').textContent=gastos.length+' registros';
+  renderHist();renderCfg();updatePill();
+  document.getElementById('cfgTotal').textContent=gastos.length+' registros';
   showFlash('-'+mxn(amount),selectedCat+(note?' · '+note:''));
 }
 
 // ── FLASH ──
 function showFlash(t,s){
-  document.getElementById('flashTitle').textContent=t;
+  document.getElementById('toast').textContent=t;
   document.getElementById('flashSub').textContent=s;
-  document.getElementById('flash').classList.add('show');
-  setTimeout(()=>document.getElementById('flash').classList.remove('show'),1800);
+  document.getElementById('toast').classList.add('show');
+  setTimeout(()=>document.getElementById('toast').classList.remove('show'),1800);
 }
 function shakeDisplay(){
   const el=document.getElementById('amountDisplay');
@@ -482,8 +310,8 @@ function shakeDisplay(){
 }
 
 // ── HISTORY ──
-function renderHistory(){
-  const list=document.getElementById('historyList');
+function renderHist(){
+  const list=document.getElementById('histList');
   document.getElementById('histCount').textContent=gastos.length+' registros';
   if(!gastos.length){list.innerHTML='<div class="empty"><span>📭</span><span>sin gastos aún</span></div>';return;}
   list.innerHTML=gastos.slice(0,40).map(g=>{
@@ -502,7 +330,7 @@ function renderHistory(){
 }
 
 // ── RESUMEN ──
-function renderResumen(){
+function renderCfg(){
   const now=new Date(),hoy=now.toDateString();
   const lun=new Date(now);lun.setDate(now.getDate()-((now.getDay()+6)%7));lun.setHours(0,0,0,0);
   let h=0,s=0;const pc={};
@@ -512,11 +340,11 @@ function renderResumen(){
     if(d>=lun)s+=g.monto;
     pc[g.categoria]=(pc[g.categoria]||0)+g.monto;
   });
-  document.getElementById('statHoy').textContent=mxn(h);
-  document.getElementById('statSemana').textContent=mxn(s);
-  document.getElementById('statCount').textContent=gastos.length;
-  document.getElementById('statLibre').textContent=mxn(Math.max(0,LIBRE_SEMANAL-s));
-  const bars=document.getElementById('progressBars');
+  document.getElementById('cfgHoy').textContent=mxn(h);
+  document.getElementById('cfgSem').textContent=mxn(s);
+  document.getElementById('cfgTotal').textContent=gastos.length;
+  document.getElementById('cfgLibre').textContent=mxn(Math.max(0,LIBRE_SEMANAL-s));
+  const bars=document.getElementById('progressBars') || {innerHTML:''};
   bars.innerHTML=Object.entries(PRESUP).map(([cat,budget])=>{
     const spent=pc[cat]||0,pct=Math.min(100,(spent/budget)*100),over=pct>=100;
     const col=over?'#f38ba8':(CAT_COLORS[cat]||'#6c7086');
@@ -536,17 +364,23 @@ function updatePill(){
 }
 
 // ── TABS ──
-function switchTab(name){
-  ['registrar','historial','resumen','config'].forEach((n,i)=>{
-    document.querySelectorAll('.tab')[i].className='tab'+(n===name?' active':'');
-    document.getElementById('view-'+n).className='view'+(n===name?' active':'');
+function swTab(name, el){
+  const map = {reg:'registrar', hist:'historial', cfg:'config'};
+  const names = ['reg','hist','cfg'];
+  names.forEach(n=>{
+    document.getElementById('panel-'+n).className='panel'+(n===name?' active':'');
   });
-  if(name==='resumen')renderResumen();
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.className='tab'+(names[i]===name?' active':'');
+  });
+  if(name==='hist') renderHist();
+  if(name==='cfg') renderCfg();
 }
+function switchTab(name){ swTab(name); }
 
 // ── CONFIG ──
-async function saveConfig(){
-  const url=document.getElementById('scriptUrl').value.trim();
+async function saveUrl(){
+  const url=document.getElementById('cfgUrl').value.trim();
   if(!url.startsWith('https://script.google.com')){updateStatusDot('err','url inválida');return;}
   updateStatusDot('pending','probando conexión...');
   try{
@@ -560,17 +394,18 @@ async function saveConfig(){
   }catch(e){updateStatusDot('err','error de conexión');}
 }
 function updateStatusDot(s,t){
-  document.getElementById('statusDot').className='sdot '+s;
+  document.getElementById('syncDot').className='sdot '+s;
   document.getElementById('statusText').textContent=t;
 }
 function clearData(){
   if(!confirm('¿Borrar todos los gastos locales?'))return;
   gastos=[];localStorage.removeItem('gastos_vs');
-  renderHistory();renderResumen();updatePill();
-  document.getElementById('cfgCount').textContent='0 registros';
+  renderHist();renderCfg();updatePill();
+  document.getElementById('cfgTotal').textContent='0 registros';
 }
 
 init();
+
 </script>
 </body>
 </html>
