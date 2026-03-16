@@ -318,25 +318,26 @@ async function submitGasto(){
   localStorage.setItem('gastos_vs',JSON.stringify(gastos));
   const postURL = scriptURL || APPS_URL;
   try{
-    const resp = await fetch(postURL, {
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({
-        categoria: selectedCat,
-        cat: selectedCat,
-        monto: amount,
-        nota: note,
-        fecha: new Date().toISOString()
-      })
+    // Usar GET con params — evita CORS preflight y devuelve respuesta real
+    const params = new URLSearchParams({
+      action: 'add',
+      cat: selectedCat,
+      monto: amount,
+      nota: note,
+      fecha: new Date().toLocaleDateString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-')
     });
-    // no-cors no devuelve respuesta, asumimos OK si no hay error
-    gasto.synced=true;
-    localStorage.setItem('gastos_vs',JSON.stringify(gastos));
-    document.getElementById('syncDot').className='sync-dot ok';
-  }catch(e){
+    const resp = await fetch(postURL+'?'+params.toString(), {redirect:'follow'});
+    const json = await resp.json();
+    if(json.status==='ok'){
+      gasto.synced=true;
+      localStorage.setItem('gastos_vs',JSON.stringify(gastos));
+      document.getElementById('syncDot').className='sync-dot ok';
+    } else {
+      throw new Error(json.message||'error');
+    }
+  }catch(err){
     document.getElementById('syncDot').className='sync-dot err';
-    console.log('POST error:',e);
+    console.log('Sync error:',err);
   }
   amountStr='';updateAmountDisplay();
   document.getElementById('notaInput').value='';
