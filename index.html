@@ -360,7 +360,7 @@ async function renderHist(){
       const color=CAT_COLORS[cat]||'#94a3b8';
       const icon=CAT_ICONS[cat]||CAT_ICONS.Otro;
       return`<div class="hist-item">
-        <div class="hist-icon" style="display:flex;align-items:center;color:${color}">${icon}</div>
+        <div style="width:36px;height:36px;border-radius:10px;background:${color}22;border:1.5px solid ${color}55;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;font-family:var(--mono);color:${color};letter-spacing:0;font-weight:700">${cat.substring(0,3).toUpperCase()}</div>
         <div class="hist-body">
           <div class="hist-desc" style="color:${color}">${cat}</div>
           <div class="hist-meta">${g.nota||'—'} · ${fmtFechaApp(g.fecha)}</div>
@@ -383,7 +383,7 @@ async function renderHist(){
       const color=CAT_COLORS[cat]||'#94a3b8';
       const icon=CAT_ICONS[cat]||CAT_ICONS.Otro;
       return`<div class="hist-item">
-        <div class="hist-icon" style="display:flex;align-items:center;color:${color}">${icon}</div>
+        <div style="width:36px;height:36px;border-radius:10px;background:${color}22;border:1.5px solid ${color}55;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;font-family:var(--mono);color:${color};letter-spacing:0;font-weight:700">${cat.substring(0,3).toUpperCase()}</div>
         <div class="hist-body">
           <div class="hist-desc" style="color:${color}">${cat}</div>
           <div class="hist-meta">${g.nota||'—'} · ${fmtFechaApp(g.fecha)}</div>
