@@ -309,9 +309,9 @@ function selectCat(el){
 async function submitGasto(){
   const amount=parseFloat(amountStr);
   if(!amount||amount<=0){shakeDisplay();return;}
-  const note=document.getElementById('noteInput').value.trim();
+  const note=document.getElementById('notaInput').value.trim();
   const gasto={id:Date.now(),fecha:new Date().toISOString(),categoria:selectedCat,monto:amount,nota:note,synced:false};
-  const btn=document.getElementById('submitBtn');
+  const btn=document.getElementById('btnReg');
   btn.disabled=true;btn.textContent='enviando...';
   gastos.unshift(gasto);
   localStorage.setItem('gastos_vs',JSON.stringify(gastos));
@@ -322,7 +322,7 @@ async function submitGasto(){
     }catch(e){}
   }
   amountStr='';updateAmountDisplay();
-  document.getElementById('noteInput').value='';
+  document.getElementById('notaInput').value='';
   btn.disabled=false;btn.textContent='REGISTRAR GASTO';
   renderHist();renderCfg();updatePill();
   document.getElementById('cfgTotal').textContent=gastos.length;
@@ -330,11 +330,18 @@ async function submitGasto(){
 }
 
 // ── FLASH ──
-function showFlash(t,s){
+function showFlash_orig(t,s){
   document.getElementById('toast').textContent=t;
   document.getElementById('flashSub').textContent=s;
   document.getElementById('toast').classList.add('show');
   setTimeout(()=>document.getElementById('toast').classList.remove('show'),1800);
+}
+function registrar(){submitGasto();}
+function showFlash(title,sub){
+  const t=document.getElementById('toast');
+  t.textContent=title+(sub?' · '+sub:'');
+  t.className='toast show';
+  setTimeout(()=>t.className='toast',2500);
 }
 function shakeDisplay(){
   const el=document.getElementById('amountDisplay');
