@@ -247,7 +247,7 @@ function init(){
     updateStatusDot('pending','sin configurar');
   }
   renderHist();renderCfg();updatePill();
-  document.getElementById('cfgTotal').textContent = gastos.length + ' registros';
+  document.getElementById('cfgTotal').textContent = gastos.length;
 }
 
 // ── NUMPAD ──
@@ -295,7 +295,7 @@ async function submitGasto(){
   document.getElementById('noteInput').value='';
   btn.disabled=false;btn.textContent='REGISTRAR GASTO';
   renderHist();renderCfg();updatePill();
-  document.getElementById('cfgTotal').textContent=gastos.length+' registros';
+  document.getElementById('cfgTotal').textContent=gastos.length;
   showFlash('-'+mxn(amount),selectedCat+(note?' · '+note:''));
 }
 
@@ -314,23 +314,77 @@ function shakeDisplay(){
 }
 
 // ── HISTORY ──
-function renderHist(){
+function fmtFechaApp(raw){
+  try{
+    const d=new Date(raw);if(isNaN(d))return raw;
+    return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short'})+' '+
+      d.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){return raw;}
+}
+
+const APPS_URL='https://script.google.com/macros/s/AKfycbzQkG54L0T9uZRK4x9KEGJdb4jnFq5W7KqLMZUNOJwqrzpG2j10mQUBIS8HK0crf3lqOw/exec';
+
+async function renderHist(){
   const list=document.getElementById('histList');
-  document.getElementById('histCount').textContent=gastos.length+' registros';
-  if(!gastos.length){list.innerHTML='<div class="empty"><span>📭</span><span>sin gastos aún</span></div>';return;}
-  list.innerHTML=gastos.slice(0,40).map(g=>{
-    const d=new Date(g.fecha);
-    const ds=d.toLocaleDateString('es-MX',{day:'2-digit',month:'short'});
-    const ts=d.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
-    return`<div class="hist-item">
-      <div class="hist-icon" style="color:var(--text3);display:flex;align-items:center;">${CAT_ICONS[g.categoria]||CAT_ICONS.Otro}</div>
-      <div class="hist-body">
-        <div class="hist-desc">${g.nota||g.categoria}</div>
-        <div class="hist-meta">${g.categoria} · ${ds} ${ts} <span class="hist-sync">${g.synced?'☁':'📱'}</span></div>
-      </div>
-      <div class="hist-amt">-${mxn(g.monto)}</div>
-    </div>`;
-  }).join('');
+  const url=scriptURL||APPS_URL;
+  list.innerHTML='<div class="empty"><span style="font-size:11px;color:var(--text2);font-family:var(--mono)">cargando...</span></div>';
+  try{
+    const r=await fetch(url+'?action=getAll',{redirect:'follow'});
+    const json=await r.json();
+    if(json.status!=='ok'||!Array.isArray(json.data))throw new Error('sin data');
+    // Combinar Sheets + localStorage (localStorage primero = más recientes no sincronizados)
+    const sheetsRows=json.data.map(c=>{
+      const fecha=c[0]||'';
+      return{fecha,hora:(c[1]||''),cat:c[2]||'',monto:parseFloat(c[3])||0,nota:c[4]||'',synced:true};
+    }).filter(r=>r.monto>0);
+    // Gastos locales no sincronizados
+    const localPending=gastos.filter(g=>!g.synced);
+    const allRows=[...localPending,...sheetsRows];
+    document.getElementById('histCount').textContent=allRows.length;
+    if(!allRows.length){
+      list.innerHTML='<div class="empty"><span>📭</span><span style="font-size:11px">sin gastos aún</span></div>';
+      return;
+    }
+    list.innerHTML=allRows.slice(0,50).map(g=>{
+      const cat=g.cat||g.categoria||'Otro';
+      const color=CAT_COLORS[cat]||'#94a3b8';
+      const icon=CAT_ICONS[cat]||CAT_ICONS.Otro;
+      return`<div class="hist-item">
+        <div class="hist-icon" style="color:${color}">${icon}</div>
+        <div class="hist-body">
+          <div class="hist-desc" style="color:${color}">${cat}</div>
+          <div class="hist-meta">${g.nota||'—'} · ${fmtFechaApp(g.fecha)}</div>
+        </div>
+        <div class="hist-right">
+          <div class="hist-amt">-${mxn(g.monto)}</div>
+          <div class="hist-sync ${g.synced?'ok':'pen'}">${g.synced?'☁ sync':'📱 local'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(err){
+    // Fallback a localStorage
+    document.getElementById('histCount').textContent=gastos.length;
+    if(!gastos.length){
+      list.innerHTML='<div class="empty"><span>📭</span><span style="font-size:11px">sin gastos aún</span></div>';
+      return;
+    }
+    list.innerHTML=gastos.slice(0,40).map(g=>{
+      const cat=g.cat||g.categoria||'Otro';
+      const color=CAT_COLORS[cat]||'#94a3b8';
+      const icon=CAT_ICONS[cat]||CAT_ICONS.Otro;
+      return`<div class="hist-item">
+        <div class="hist-icon" style="color:${color}">${icon}</div>
+        <div class="hist-body">
+          <div class="hist-desc" style="color:${color}">${cat}</div>
+          <div class="hist-meta">${g.nota||'—'} · ${fmtFechaApp(g.fecha)}</div>
+        </div>
+        <div class="hist-right">
+          <div class="hist-amt">-${mxn(g.monto)}</div>
+          <div class="hist-sync pen">📱 local</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ── RESUMEN ──
@@ -405,7 +459,7 @@ function clearData(){
   if(!confirm('¿Borrar todos los gastos locales?'))return;
   gastos=[];localStorage.removeItem('gastos_vs');
   renderHist();renderCfg();updatePill();
-  document.getElementById('cfgTotal').textContent='0 registros';
+  document.getElementById('cfgTotal').textContent=0;
 }
 
 init();
