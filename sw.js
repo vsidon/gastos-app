@@ -1,16 +1,14 @@
-const VERSION = 'v6';
-const CACHE = 'gasterapido-' + VERSION;
+const VERSION = 'v4';
+const CACHE = 'gastrapido-' + VERSION;
 
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll([
-      '/gastos-app/',
-      '/gastos-app/index.html',
-      '/gastos-app/dashboard.html',
-      '/gastos-app/manifest.json',
-      '/gastos-app/icon-192.png',
-      '/gastos-app/icon-512.png',
+    caches.open(CACHE).then(cache => cache.addAll([
+      './',
+      './index.html',
+      './dashboard.html',
+      './manifest.json'
     ]))
   );
 });
@@ -24,12 +22,8 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Network first — siempre intenta red, cae a caché solo si offline
+  // Network first — siempre jala lo más nuevo
   e.respondWith(
-    fetch(e.request).then(r => {
-      const clone = r.clone();
-      caches.open(CACHE).then(c => c.put(e.request, clone));
-      return r;
-    }).catch(() => caches.match(e.request))
+    fetch(e.request).catch(() => caches.match(e.request))
   );
 });

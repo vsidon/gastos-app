@@ -543,5 +543,13 @@ if('serviceWorker' in navigator){
     });
 }
 </script>
+
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.update(); // Forzar check de actualización
+  });
+}
+</script>
 </body>
 </html>
