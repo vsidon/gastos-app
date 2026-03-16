@@ -221,7 +221,7 @@ const CAT_COLORS = {
   Recibos:'#cba6f7',Transporte:'#94e2d5',Deuda:'#f38ba8',
   Plasma:'#89b4fa',Emergencia:'#fab387',Otro:'#6c7086'
 };
-const CAT_ICONS = {Gasolina:'[GAS]',Mandado:'[MKT]',Comida:'[EAT]',Recibos:'[DOC]',Transporte:'[CAR]',Deuda:'[PAY]',Plasma:'[MED]',Emergencia:'[SOS]',Otro:'[BOX]'};
+const CAT_ICONS = {Gasolina:'⛽',Mandado:'🛒',Comida:'🍽',Recibos:'📄',Transporte:'🚗',Deuda:'💳',Plasma:'🏥',Emergencia:'🚨',Otro:'📦'};
 const PRESUP = {Gasolina:200,Mandado:200,Comida:500,Recibos:100,Otro:300};
 
 let gastos = JSON.parse(localStorage.getItem('gastos_vs') || '[]');
@@ -350,14 +350,14 @@ async function renderHist(){
       const color=CAT_COLORS[cat]||'#94a3b8';
       const icon=CAT_ICONS[cat]||CAT_ICONS.Otro;
       return`<div class="hist-item">
-        <div class="hist-icon" style="color:${color}">${icon}</div>
+        <div class="hist-icon" style="font-size:22px;line-height:1">${icon}</div>
         <div class="hist-body">
           <div class="hist-desc" style="color:${color}">${cat}</div>
           <div class="hist-meta">${g.nota||'—'} · ${fmtFechaApp(g.fecha)}</div>
         </div>
         <div class="hist-right">
           <div class="hist-amt">-${mxn(g.monto)}</div>
-          <div class="hist-sync ${g.synced?'ok':'pen'}">${g.synced?'☁ sync':'📱 local'}</div>
+          <div class="hist-sync ok">☁ sheets</div>
         </div>
       </div>`;
     }).join('');
@@ -373,7 +373,7 @@ async function renderHist(){
       const color=CAT_COLORS[cat]||'#94a3b8';
       const icon=CAT_ICONS[cat]||CAT_ICONS.Otro;
       return`<div class="hist-item">
-        <div class="hist-icon" style="color:${color}">${icon}</div>
+        <div class="hist-icon" style="font-size:22px;line-height:1">${icon}</div>
         <div class="hist-body">
           <div class="hist-desc" style="color:${color}">${cat}</div>
           <div class="hist-meta">${g.nota||'—'} · ${fmtFechaApp(g.fecha)}</div>
