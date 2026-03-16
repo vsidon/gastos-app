@@ -251,7 +251,8 @@ const CAT_ICONS = {
 const PRESUP = {Gasolina:200,Mandado:200,Comida:500,Recibos:100,Otro:300};
 
 let gastos = JSON.parse(localStorage.getItem('gastos_vs') || '[]');
-let scriptURL = localStorage.getItem('script_url_vs') || '';
+const APPS_URL_DEFAULT='https://script.google.com/macros/s/AKfycbzQkG54L0T9uZRK4x9KEGJdb4jnFq5W7KqLMZUNOJwqrzpG2j10mQUBIS8HK0crf3lqOw/exec';
+let scriptURL = localStorage.getItem('script_url_vs') || APPS_URL_DEFAULT;
 let amountStr = '';
 let selectedCat = 'Gasolina';
 
@@ -375,7 +376,7 @@ function fmtFechaApp(raw){
   }catch(e){return raw;}
 }
 
-const APPS_URL='https://script.google.com/macros/s/AKfycbzQkG54L0T9uZRK4x9KEGJdb4jnFq5W7KqLMZUNOJwqrzpG2j10mQUBIS8HK0crf3lqOw/exec';
+const APPS_URL=APPS_URL_DEFAULT;
 
 async function renderHist(){
   const list=document.getElementById('histList');
