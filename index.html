@@ -315,11 +315,27 @@ async function submitGasto(){
   btn.disabled=true;btn.textContent='enviando...';
   gastos.unshift(gasto);
   localStorage.setItem('gastos_vs',JSON.stringify(gastos));
-  if(scriptURL){
-    try{
-      await fetch(scriptURL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({categoria:selectedCat,monto:amount,nota:note})});
-      gasto.synced=true;localStorage.setItem('gastos_vs',JSON.stringify(gastos));
-    }catch(e){}
+  const postURL = scriptURL || APPS_URL;
+  try{
+    const resp = await fetch(postURL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({
+        categoria: selectedCat,
+        cat: selectedCat,
+        monto: amount,
+        nota: note,
+        fecha: new Date().toISOString()
+      })
+    });
+    // no-cors no devuelve respuesta, asumimos OK si no hay error
+    gasto.synced=true;
+    localStorage.setItem('gastos_vs',JSON.stringify(gastos));
+    document.getElementById('syncDot').className='sync-dot ok';
+  }catch(e){
+    document.getElementById('syncDot').className='sync-dot err';
+    console.log('POST error:',e);
   }
   amountStr='';updateAmountDisplay();
   document.getElementById('notaInput').value='';
